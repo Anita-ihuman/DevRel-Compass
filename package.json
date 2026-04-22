@@ -1,0 +1,40 @@
+{
+  "name": "devrel-hub",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Open-source DevRel career development platform — skills assessment, career roadmap, and resources for Developer Relations practitioners.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "mammoth": "^1.8.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^8",
+    "eslint-config-next": "^15.0.0",
+    "typescript": "^5"
+  },
+  "keywords": [
+    "devrel",
+    "developer-relations",
+    "career",
+    "skills-assessment",
+    "open-source"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/devrel-hub"
+  }
+}
