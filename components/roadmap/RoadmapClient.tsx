@@ -139,7 +139,7 @@ export default function RoadmapClient() {
       {/* Hero */}
       <section className="roadmap-hero">
         <div className="roadmap-hero-inner">
-          <div className="hero-badge">DevRel Hub</div>
+          <div className="hero-badge">DevRel Compass</div>
           <h1 className="roadmap-hero-title">
             Your Path<br />
             <span className="hero-accent">into DevRel</span>

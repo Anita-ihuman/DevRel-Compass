@@ -1,0 +1,9 @@
+PostgresDatabase. Now, you can write a simple YAML file like this:
+apiVersion: database.example.com/v1
+kind: PostgresDatabase
+metadata:
+  name: my-app-prod-database
+spec:
+  version: "15"
+  replicas: 3
+  storage: 50Gi

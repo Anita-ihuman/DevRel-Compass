@@ -8,7 +8,7 @@ export default function Footer() {
           <div className="footer-brand">
             <div className="footer-logo">
               <span className="nav-logo-mark">◈</span>
-              <span className="nav-logo-name">DevRel Hub</span>
+              <span className="nav-logo-name">DevRel Compass</span>
             </div>
             <p className="footer-tagline">
               Open-source career development platform for Developer Relations practitioners.
@@ -19,12 +19,13 @@ export default function Footer() {
             <div className="footer-col-title">Features</div>
             <Link href="/"        className="footer-link">Skills Analyzer</Link>
             <Link href="/roadmap" className="footer-link">Career Roadmap</Link>
+            <Link href="/events"  className="footer-link">Events</Link>
           </div>
 
           <div className="footer-links-col">
             <div className="footer-col-title">Open Source</div>
             <a
-              href="https://github.com/your-org/devrel-hub"
+              href="https://github.com/your-org/devrel-compass"
               className="footer-link"
               target="_blank"
               rel="noopener noreferrer"
@@ -32,7 +33,7 @@ export default function Footer() {
               GitHub →
             </a>
             <a
-              href="https://github.com/your-org/devrel-hub/blob/main/CONTRIBUTING.md"
+              href="https://github.com/your-org/devrel-compass/blob/main/CONTRIBUTING.md"
               className="footer-link"
               target="_blank"
               rel="noopener noreferrer"
@@ -43,7 +44,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <span className="footer-copy">© {new Date().getFullYear()} DevRel Hub. MIT License.</span>
+          <span className="footer-copy">© {new Date().getFullYear()} DevRel Compass. MIT License.</span>
           <span className="footer-powered">
             Powered by{' '}
             <a href="https://anthropic.com" className="footer-link-inline" target="_blank" rel="noopener noreferrer">

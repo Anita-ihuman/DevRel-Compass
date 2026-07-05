@@ -1,60 +1,116 @@
 import type { SkillMeta, DevRelSkills } from '@/types'
 
 export const SKILLS: SkillMeta[] = [
-  { key: 'technicalCredibility',         label: 'Technical Credibility',            hint: 'Coding, demos, infra, OSS contributions, technical certs' },
-  { key: 'contentCreation',              label: 'Content Creation',                 hint: 'Blog posts, docs, video, newsletters, API guides' },
-  { key: 'communityBuilding',            label: 'Community Building',               hint: 'Programs built, platform engagement, health metrics' },
-  { key: 'publicSpeakingEvangelism',     label: 'Public Speaking & Evangelism',     hint: 'Conference talks, workshops, keynotes, meetups' },
-  { key: 'developerExperience',          label: 'Developer Experience',             hint: 'DX audits, onboarding, SDK/tooling contributions' },
-  { key: 'openSourceParticipation',      label: 'Open Source Participation',        hint: 'OSS contributions, governance, maintainer roles' },
-  { key: 'productFeedbackLoop',          label: 'Product Feedback Loop',            hint: 'Developer insights, survey programs, roadmap influence' },
-  { key: 'developerEducationEnablement', label: 'Developer Education & Enablement', hint: 'Courses, certifications, workshop curricula, LMS' },
+  { key: 'technicalCredibility',           label: 'Technical Credibility',            hint: 'Coding, demos, infra ops, API/SDK work, debuggable builds' },
+  { key: 'contentCreationDepth',           label: 'Content Creation Depth',           hint: 'Multi-format output with measurable reach: tutorials, video, docs, whitepapers' },
+  { key: 'communityBuildingScale',         label: 'Community Building & Scale',       hint: 'Programs built and governed; contributor pipelines, health metrics' },
+  { key: 'publicSpeakingEvangelism',       label: 'Public Speaking & Evangelism',     hint: 'Tier-1 conferences, audience size, keynotes, workshops facilitated' },
+  { key: 'developerExperienceSensibility', label: 'Developer Experience',             hint: 'Identifying and fixing journey friction; onboarding, SDK, DX strategy ownership' },
+  { key: 'openSourceParticipation',        label: 'Open Source Participation',        hint: 'Named contributions, governance, maintainer or reviewer status' },
+  { key: 'productFeedbackStrategy',        label: 'Product Feedback Strategy',        hint: 'Structured developer insight driving roadmap decisions; owned feedback loops' },
+  { key: 'developerEducationEnablement',   label: 'Developer Education & Enablement', hint: 'Certification programs, codelabs, LMS courses, measurable learning outcomes' },
+  { key: 'dataAndMeasurement',             label: 'Data & Measurement',               hint: 'Metrics ownership, BI tooling (BigQuery, Looker), SQL/Python, executive reporting' },
+  { key: 'aiFluency',                      label: 'AI Fluency',                       hint: 'LLM integration, MCP, agent building, RAG, conversational AI platform experience' },
 ]
 
 export const LOADING_MESSAGES = [
   'Reading your resume...',
   'Mapping your DevRel skills...',
-  'Analyzing job fit...',
-  'Calculating your score...',
-  'Building your roadmap...',
+  'Benchmarking against Google, AWS, and Stripe bars...',
+  'Evaluating technical credibility and OSS depth...',
+  'Scoring content, community, and speaking evidence...',
+  'Assessing data, measurement, and AI fluency...',
+  'Analyzing developer experience sensibility...',
+  'Calculating your overall score...',
+  'Identifying strengths and growth gaps...',
+  'Building your personalised roadmap...',
 ]
 
-export const SYSTEM_PROMPT = `You are a world-class DevRel career coach and hiring expert with deep knowledge of global Developer Relations expectations. You assess candidates against the standards used by leading DevRel teams at companies like Google, AWS, Stripe, Twilio, HashiCorp, and CNCF member organizations.
+export const SYSTEM_PROMPT = `You are a senior DevRel hiring panel and career coach — drawing on collective experience at Google Developer Relations, AWS Developer Advocacy, Stripe, Twilio, HashiCorp, CNCF, and PolyAI. You assess candidates against the actual hiring bars used at these organisations and provide honest, actionable career guidance.
 
-Analyze the provided resume and return ONLY a valid JSON object. No markdown, no backticks, no explanation — just raw JSON.
+Analyse the resume and return ONLY valid JSON. No markdown, no backticks, no explanation.
 
-Return this exact structure:
+## COMPOSITE HIRING BAR
+
+Score against this benchmark — not a generic DevRel standard:
+- Google/AWS: 5–8+ years coding (JS, Python, SQL), BigQuery/BI proficiency, large-audience tier-1 conference delivery
+- Stripe/Twilio: API design sensibility, SDK authorship or review, developer onboarding ownership, docs at scale
+- CNCF: Open source governance, Kubernetes/Prometheus/OTel depth, KubeCon/FOSDEM presence, upstream contribution
+- HashiCorp: IaC/DevOps depth, long-form technical content, community credibility under technical scrutiny
+- PolyAI/AI platforms: LLM/NLP adjacent experience, API-first B2B SaaS, quantitative developer insight capability
+
+## 10 SCORING DIMENSIONS (0–100 each)
+
+Reward named evidence with measurable outcomes. Penalise tools listed without context.
+
+1. technicalCredibility — peer-level coding, infra ops, API/SDK work, debuggable demos
+   0–30 tools listed, nothing built · 51–70 solid practitioner · 71–85 passes AWS/Stripe bar · 86+ architect-level, KubeCon-ready
+
+2. contentCreationDepth — quality, range, and measurable impact across formats
+   0–30 generic claims · 51–70 multi-format with some outcomes · 71–85 measurable growth, editorial ownership · 86+ 100k+ reach, platform-distributed at scale
+
+3. communityBuildingScale — building and governing communities, not just participating
+   0–30 participant only · 51–70 programs built with growth metrics · 71–85 cross-org governance structures · 86+ CNCF-level governance, chapter or foundation leadership
+
+4. publicSpeakingEvangelism — stage presence at conferences that matter
+   0–30 no speaking history · 51–70 mid-tier conferences or workshops · 71–85 tier-1, 500–2000+ audience · 86+ KubeCon/re:Invent keynote, 2000+ audience
+
+5. developerExperienceSensibility — identifying and fixing developer journey friction end to end
+   0–30 no DX evidence · 51–70 multiple DX improvements with outcomes · 71–85 journey ownership, product feedback translated · 86+ DX strategy at org scale
+
+6. openSourceParticipation — contribution depth, governance, maintainer credibility
+   0–30 OSS user only · 51–70 named project contributions · 71–85 governance or working group · 86+ CNCF graduation, maintainer on significant project
+
+7. productFeedbackStrategy — structured developer insight driving product decisions
+   0–30 no internal influence · 51–70 feedback structured and shared · 71–85 feedback loops owned, named product changes · 86+ roadmap co-ownership, advisory program management
+
+8. developerEducationEnablement — structured learning design at scale
+   0–30 no curriculum design · 51–70 workshop curriculum built · 71–85 certification launched, 200+ credentialed · 86+ LMS authorship, org-scale learning path architecture
+
+9. dataAndMeasurement — metrics ownership, BI tooling, data-driven program decisions
+   0–30 no measurement evidence · 51–70 dashboards built, named metrics tracked · 71–85 KPIs owned, data-driven decisions documented · 86+ SQL/BigQuery proficiency, executive DevRel reporting
+
+10. aiFluency — LLM, MCP, conversational AI, agent-building experience
+    0–30 no AI exposure · 51–70 LLM integration or AI-adjacent content · 71–85 AI tool building, MCP/agent framework · 86+ production AI integration, RAG or conversational AI depth
+
+## CAREER LEVEL
+
+Junior (0–3yr): 1–2 skills above 60, limited conference or governance history
+Mid-Level (3–5yr): 4–5 skills above 65, named conference speaking, community programs contributed to
+Senior (5–8yr): 6–7 skills above 70, tier-1 conferences, programs owned and scaled, product feedback evidence
+Staff/Principal (8+yr): 8+ skills above 75, cross-org strategy, foundation/governance participation, quantified business impact
+DevRel Leader: team/function leadership, budget ownership, executive reporting, market-level strategy
+
+## OUTPUT FORMAT
+
+Return this exact JSON:
 {
   "candidateName": "string",
   "overallScore": 0,
   "careerLevel": "Junior DevRel | Mid-Level DevRel | Senior DevRel | Staff/Principal DevRel | DevRel Leader",
   "devrelSkills": {
     "technicalCredibility": 0,
-    "contentCreation": 0,
-    "communityBuilding": 0,
+    "contentCreationDepth": 0,
+    "communityBuildingScale": 0,
     "publicSpeakingEvangelism": 0,
-    "developerExperience": 0,
+    "developerExperienceSensibility": 0,
     "openSourceParticipation": 0,
-    "productFeedbackLoop": 0,
-    "developerEducationEnablement": 0
+    "productFeedbackStrategy": 0,
+    "developerEducationEnablement": 0,
+    "dataAndMeasurement": 0,
+    "aiFluency": 0
   },
-  "topStrength": "string — the single most impressive thing about this candidate in 1 sentence",
-  "jobFit": [
-    {
-      "label": "string — name of the requirement area",
-      "score": 0,
-      "description": "string — 2 sentences: what matches and what is missing"
-    }
-  ],
+  "topStrength": "string — single most impressive thing in 1 sentence",
+  "jobFit": [{ "label": "string", "score": 0, "description": "string — 2 sentences: what matches and what is missing" }],
   "strengths": ["string", "string", "string"],
   "gaps": ["string", "string", "string"],
   "roadmap": [
     {
       "priority": "High | Medium | Low",
-      "timeframe": "0–3 months | 3–6 months | 6–12 months",
-      "action": "string — specific, concrete action",
+      "timeframe": "Now (0–3 months) | Soon (3–6 months) | Later (6–12 months)",
+      "action": "string — specific and concrete",
       "why": "string — 1 sentence on why this moves the needle",
-      "resource": "string — a specific resource, community, or platform to use (e.g. DevRelCon, CNCF Slack, devrel.co, Mary Thengvall book)"
+      "resource": "string — specific resource: devrel.co, CNCF Slack #devrel, Mary Thengvall's Business Value of Developer Relations, DevRelCon talk archive, Orbit, Christian Heilmann's Developer Advocacy Handbook"
     }
   ],
   "verdict": "string — 2–3 sentences, honest and direct, no fluff",
@@ -62,14 +118,12 @@ Return this exact structure:
   "fitLabel": null
 }
 
-Scoring calibration:
-- 0–30: Little to no evidence of this skill
-- 31–50: Early-stage or indirect evidence
-- 51–70: Solid working evidence with some gaps
-- 71–85: Strong, consistent evidence across multiple roles
-- 86–100: Exceptional, industry-leading evidence
+## JOB FIT (populate only when a job description is provided)
+Extract 5–7 critical requirements, score each 0–100, identify 3 strongest alignments and 3 most significant gaps.
+fitLabel: 85–100 Strong Fit · 70–84 Good Fit · 55–69 Partial Fit · 40–54 Weak Fit · Below 40 Poor Fit
 
-A candidate with 4+ years of DevRel experience, conference speaking history, open source community leadership, and multi-format content production should score 75–90 overall. Do not be artificially modest — score what the evidence actually supports. Be specific, not generic, in all text fields.`
+## SCORING INTEGRITY
+Score what the evidence actually supports. A 4+ year candidate with tier-1 conference history, OSS contributions, and multi-format content should score 75–90 overall. Never inflate. All text fields must be specific, never generic.`
 
 // ─── Career Roadmap Data ──────────────────────────────────────────────────────
 
@@ -97,13 +151,15 @@ export const CAREER_STAGES: CareerStage[] = [
     color: '#2dd4bf',
     skills: {
       technicalCredibility: 52,
-      contentCreation: 48,
-      communityBuilding: 38,
+      contentCreationDepth: 48,
+      communityBuildingScale: 38,
       publicSpeakingEvangelism: 32,
-      developerExperience: 40,
+      developerExperienceSensibility: 40,
       openSourceParticipation: 38,
-      productFeedbackLoop: 28,
+      productFeedbackStrategy: 28,
       developerEducationEnablement: 28,
+      dataAndMeasurement: 20,
+      aiFluency: 22,
     },
     milestones: [
       'Publish your first technical tutorial or blog post',
@@ -129,13 +185,15 @@ export const CAREER_STAGES: CareerStage[] = [
     color: '#8b5cf6',
     skills: {
       technicalCredibility: 65,
-      contentCreation: 65,
-      communityBuilding: 60,
+      contentCreationDepth: 65,
+      communityBuildingScale: 60,
       publicSpeakingEvangelism: 57,
-      developerExperience: 62,
+      developerExperienceSensibility: 62,
       openSourceParticipation: 55,
-      productFeedbackLoop: 55,
+      productFeedbackStrategy: 55,
       developerEducationEnablement: 48,
+      dataAndMeasurement: 45,
+      aiFluency: 40,
     },
     milestones: [
       'Accepted to and delivered a talk at a major conference (KubeCon, DevRelCon, etc.)',
@@ -161,13 +219,15 @@ export const CAREER_STAGES: CareerStage[] = [
     color: '#f59e0b',
     skills: {
       technicalCredibility: 76,
-      contentCreation: 74,
-      communityBuilding: 74,
+      contentCreationDepth: 74,
+      communityBuildingScale: 74,
       publicSpeakingEvangelism: 72,
-      developerExperience: 74,
+      developerExperienceSensibility: 74,
       openSourceParticipation: 68,
-      productFeedbackLoop: 70,
+      productFeedbackStrategy: 70,
       developerEducationEnablement: 65,
+      dataAndMeasurement: 64,
+      aiFluency: 58,
     },
     milestones: [
       'Demonstrated measurable business impact from a DevRel program',
@@ -193,13 +253,15 @@ export const CAREER_STAGES: CareerStage[] = [
     color: '#22c55e',
     skills: {
       technicalCredibility: 84,
-      contentCreation: 82,
-      communityBuilding: 82,
+      contentCreationDepth: 82,
+      communityBuildingScale: 82,
       publicSpeakingEvangelism: 85,
-      developerExperience: 83,
+      developerExperienceSensibility: 83,
       openSourceParticipation: 78,
-      productFeedbackLoop: 80,
+      productFeedbackStrategy: 80,
       developerEducationEnablement: 75,
+      dataAndMeasurement: 76,
+      aiFluency: 72,
     },
     milestones: [
       'Delivered a keynote or mainstage talk at a flagship industry event',
@@ -225,13 +287,15 @@ export const CAREER_STAGES: CareerStage[] = [
     color: '#ef4444',
     skills: {
       technicalCredibility: 82,
-      contentCreation: 80,
-      communityBuilding: 88,
+      contentCreationDepth: 80,
+      communityBuildingScale: 88,
       publicSpeakingEvangelism: 90,
-      developerExperience: 86,
+      developerExperienceSensibility: 86,
       openSourceParticipation: 82,
-      productFeedbackLoop: 88,
+      productFeedbackStrategy: 88,
       developerEducationEnablement: 84,
+      dataAndMeasurement: 82,
+      aiFluency: 75,
     },
     milestones: [
       'Built, hired, and scaled a DevRel team from scratch or at inflection',

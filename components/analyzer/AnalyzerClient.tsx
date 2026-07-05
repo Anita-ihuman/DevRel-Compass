@@ -1,27 +1,42 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import UploadScreen from './UploadScreen'
 import LoadingScreen from './LoadingScreen'
 import ResultsScreen from './ResultsScreen'
+import CreditsScreen from './CreditsScreen'
 import type { AnalysisResult } from '@/types'
 import { LOADING_MESSAGES } from '@/lib/constants'
 
-type View = 'upload' | 'loading' | 'results' | 'error'
+const USES_KEY   = 'devrel_uses_count'
+const TOTAL_KEY  = 'devrel_total_credits'
+const FREE_LIMIT = 3
+
+type View = 'upload' | 'loading' | 'results' | 'error' | 'credits'
 
 export default function AnalyzerClient() {
-  const [view, setView]       = useState<View>('upload')
-  const [results, setResults] = useState<AnalysisResult | null>(null)
-  const [hasJD, setHasJD]     = useState(false)
-  const [error, setError]     = useState('')
-  const [msgIndex, setMsgIndex] = useState(0)
+  const [view, setView]             = useState<View>('upload')
+  const [results, setResults]       = useState<AnalysisResult | null>(null)
+  const [hasJD, setHasJD]           = useState(false)
+  const [error, setError]           = useState('')
+  const [msgIndex, setMsgIndex]     = useState(0)
+  const [usesCount, setUsesCount]   = useState(0)
+  const [totalCredits, setTotalCredits] = useState(FREE_LIMIT)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    const uses  = parseInt(localStorage.getItem(USES_KEY)  ?? '0',              10)
+    const total = parseInt(localStorage.getItem(TOTAL_KEY) ?? String(FREE_LIMIT), 10)
+    setUsesCount(uses)
+    setTotalCredits(total)
+    if (uses >= total) setView('credits')
+  }, [])
 
   function startMessages() {
     setMsgIndex(0)
     timerRef.current = setInterval(
-      () => setMsgIndex(i => Math.min(i + 1, LOADING_MESSAGES.length - 1)),
-      1900
+      () => setMsgIndex(i => (i + 1) % LOADING_MESSAGES.length),
+      2400
     )
   }
 
@@ -30,6 +45,11 @@ export default function AnalyzerClient() {
   }
 
   async function handleAnalyze(file: File, jobDescription: string) {
+    if (usesCount >= totalCredits) {
+      setView('credits')
+      return
+    }
+
     setView('loading')
     startMessages()
 
@@ -45,6 +65,10 @@ export default function AnalyzerClient() {
         throw new Error(json.error ?? `Request failed (${res.status})`)
       }
 
+      const newCount = usesCount + 1
+      setUsesCount(newCount)
+      localStorage.setItem(USES_KEY, String(newCount))
+
       stopMessages()
       setResults(json as AnalysisResult)
       setHasJD(Boolean(jobDescription))
@@ -57,6 +81,12 @@ export default function AnalyzerClient() {
   }
 
   function reset() {
+    const uses  = parseInt(localStorage.getItem(USES_KEY)  ?? '0',              10)
+    const total = parseInt(localStorage.getItem(TOTAL_KEY) ?? String(FREE_LIMIT), 10)
+    if (uses >= total) {
+      setView('credits')
+      return
+    }
     setView('upload')
     setResults(null)
     setError('')
@@ -65,6 +95,8 @@ export default function AnalyzerClient() {
   }
 
   if (view === 'loading') return <LoadingScreen msgIndex={msgIndex} />
+
+  if (view === 'credits') return <CreditsScreen />
 
   if (view === 'error') return (
     <div className="error-screen">
@@ -82,5 +114,5 @@ export default function AnalyzerClient() {
     return <ResultsScreen data={results} hasJD={hasJD} onReset={reset} />
   }
 
-  return <UploadScreen onAnalyze={handleAnalyze} />
+  return <UploadScreen onAnalyze={handleAnalyze} usesLeft={totalCredits - usesCount} />
 }

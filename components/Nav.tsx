@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 const NAV_LINKS = [
   { href: '/',        label: 'Skills Analyzer' },
   { href: '/roadmap', label: 'Career Roadmap'  },
+  { href: '/events',  label: 'Events'          },
 ]
 
 export default function Nav() {
@@ -18,7 +19,7 @@ export default function Nav() {
       <div className="nav-inner">
         <Link href="/" className="nav-logo">
           <span className="nav-logo-mark">◈</span>
-          <span className="nav-logo-name">DevRel Hub</span>
+          <span className="nav-logo-name">DevRel Compass</span>
         </Link>
 
         {/* Desktop links */}

@@ -4,16 +4,16 @@ import { useState, useEffect } from 'react'
 import type { AnalysisResult, RoadmapAction } from '@/types'
 
 const TIMEFRAME_META: Record<string, { label: string; sub: string }> = {
-  '0–3 months':  { label: 'Now',   sub: '0–3 Months'  },
-  '3–6 months':  { label: 'Soon',  sub: '3–6 Months'  },
-  '6–12 months': { label: 'Later', sub: '6–12 Months' },
+  'Now (0–3 months)':   { label: 'Now',   sub: '0–3 Months'  },
+  'Soon (3–6 months)':  { label: 'Soon',  sub: '3–6 Months'  },
+  'Later (6–12 months)': { label: 'Later', sub: '6–12 Months' },
 }
 
 const PRIORITY_COLOR: Record<string, string> = {
   High: '#ef4444', Medium: '#f59e0b', Low: '#22c55e',
 }
 
-const ORDERED_FRAMES = ['0–3 months', '3–6 months', '6–12 months']
+const ORDERED_FRAMES = ['Now (0–3 months)', 'Soon (3–6 months)', 'Later (6–12 months)']
 
 interface Props {
   data: AnalysisResult
@@ -60,7 +60,6 @@ function RoadmapCard({ item, index }: { item: RoadmapAction; index: number }) {
         >
           {item.priority}
         </span>
-        <span className="rm-tf">{item.timeframe}</span>
       </div>
       <h4 className="rm-action">{item.action}</h4>
       <p className="rm-why">

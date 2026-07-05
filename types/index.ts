@@ -5,21 +5,23 @@ export type CareerLevel =
   | 'Staff/Principal DevRel'
   | 'DevRel Leader'
 
-export type FitLabel = 'Strong Fit' | 'Good Fit' | 'Partial Fit' | 'Weak Fit'
+export type FitLabel = 'Strong Fit' | 'Good Fit' | 'Partial Fit' | 'Weak Fit' | 'Poor Fit'
 
 export type Priority = 'High' | 'Medium' | 'Low'
 
-export type Timeframe = '0–3 months' | '3–6 months' | '6–12 months'
+export type Timeframe = 'Now (0–3 months)' | 'Soon (3–6 months)' | 'Later (6–12 months)'
 
 export interface DevRelSkills {
   technicalCredibility: number
-  contentCreation: number
-  communityBuilding: number
+  contentCreationDepth: number
+  communityBuildingScale: number
   publicSpeakingEvangelism: number
-  developerExperience: number
+  developerExperienceSensibility: number
   openSourceParticipation: number
-  productFeedbackLoop: number
+  productFeedbackStrategy: number
   developerEducationEnablement: number
+  dataAndMeasurement: number
+  aiFluency: number
 }
 
 export interface JobFitItem {

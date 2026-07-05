@@ -30,7 +30,7 @@ export default function ResultsScreen({ data, hasJD, onReset }: Props) {
       <div className="results-header">
         <div className="rh-topbar">
           <button className="back-btn" onClick={onReset}>← New Analysis</button>
-          <span className="rh-brand">DevRel Hub · Skills Analyzer</span>
+          <span className="rh-brand">DevRel Compass · Skills Analyzer</span>
         </div>
         <div className="rh-main">
           <div className="rh-identity">

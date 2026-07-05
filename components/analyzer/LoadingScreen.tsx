@@ -5,6 +5,9 @@ interface Props {
 }
 
 export default function LoadingScreen({ msgIndex }: Props) {
+  const current    = LOADING_MESSAGES[msgIndex % LOADING_MESSAGES.length]
+  const passNumber = Math.floor(msgIndex / LOADING_MESSAGES.length)
+
   return (
     <div className="loading-screen">
       <div className="loading-spinner">
@@ -20,20 +23,14 @@ export default function LoadingScreen({ msgIndex }: Props) {
           />
         </svg>
       </div>
-      <div className="loading-msgs">
-        {LOADING_MESSAGES.map((msg, i) => (
-          <div
-            key={msg}
-            className={`loading-msg ${
-              i < msgIndex ? 'lm-done' : i === msgIndex ? 'lm-active' : 'lm-pending'
-            }`}
-          >
-            <span className="lm-dot">{i < msgIndex ? '✓' : i === msgIndex ? '◉' : '○'}</span>
-            {msg}
-          </div>
-        ))}
-      </div>
-      <p className="loading-note">This may take 10–20 seconds</p>
+
+      <p key={msgIndex} className="loading-current">{current}</p>
+
+      {passNumber > 0 && (
+        <p className="loading-deep">Running a deep analysis — this one takes a moment</p>
+      )}
+
+      <p className="loading-note">Typically 15–30 seconds</p>
     </div>
   )
 }

@@ -5,14 +5,14 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'DevRel Hub',
-    template: '%s | DevRel Hub',
+    default: 'DevRel Compass',
+    template: '%s | DevRel Compass',
   },
   description:
     'Open-source career development platform for Developer Relations practitioners. Skills assessment, career roadmap, and resources.',
   openGraph: {
     type: 'website',
-    title: 'DevRel Hub',
+    title: 'DevRel Compass',
     description: 'Skills assessment and career roadmap for Developer Relations practitioners.',
   },
 }

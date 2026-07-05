@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   }
 
   const jobNote = jobDescription
-    ? `Also analyze fit against this job description — populate jobFit with 5–7 specific requirement areas from the posting, and set fitScore (0–100) and fitLabel ("Strong Fit" | "Good Fit" | "Partial Fit" | "Weak Fit") based on overall match.\n\nJOB DESCRIPTION:\n${jobDescription}`
+    ? `Also analyze fit against this job description — populate jobFit with 5–7 specific requirement areas from the posting, and set fitScore (0–100) and fitLabel ("Strong Fit" | "Good Fit" | "Partial Fit" | "Weak Fit" | "Poor Fit") based on overall match.\n\nJOB DESCRIPTION:\n${jobDescription}`
     : `No job description provided. Return an empty array for jobFit, and set fitScore to null and fitLabel to null.`
 
   const userText = `Please analyze this resume for DevRel skills assessment.\n\n${jobNote}`
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: messageContent }],
     })
     raw = (message.content[0] as Anthropic.Messages.TextBlock).text.trim()
