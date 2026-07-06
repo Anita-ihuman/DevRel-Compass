@@ -25,7 +25,7 @@ export default function Footer() {
           <div className="footer-links-col">
             <div className="footer-col-title">Open Source</div>
             <a
-              href="https://github.com/your-org/devrel-compass"
+              href="https://github.com/Anita-ihuman/DevRel-Compass"
               className="footer-link"
               target="_blank"
               rel="noopener noreferrer"
@@ -33,7 +33,7 @@ export default function Footer() {
               GitHub →
             </a>
             <a
-              href="https://github.com/your-org/devrel-compass/blob/main/CONTRIBUTING.md"
+              href="https://github.com/Anita-ihuman/DevRel-Compass/blob/main/CONTRIBUTING.md"
               className="footer-link"
               target="_blank"
               rel="noopener noreferrer"
