@@ -4,34 +4,14 @@ import { useState } from 'react'
 
 const PLANS = [
   {
-    id: 'starter',
-    name: 'Starter',
-    price: '$5',
-    period: 'one-time',
-    credits: 10,
-    description: 'Perfect for a job search sprint',
-    features: ['10 resume analyses', 'Full skill breakdown', 'Growth roadmap', 'Job fit scoring'],
-    popular: false,
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: '$15',
-    period: 'one-time',
-    credits: 30,
-    description: 'Best value for ongoing career growth',
-    features: ['30 resume analyses', 'Full skill breakdown', 'Growth roadmap', 'Job fit scoring', 'Priority support'],
-    popular: true,
-  },
-  {
-    id: 'unlimited',
-    name: 'Unlimited',
-    price: '$12',
+    id: 'monthly',
+    name: 'Monthly',
+    price: '$6',
     period: 'per month',
-    credits: 999,
-    description: 'For teams and power users',
-    features: ['Unlimited analyses', 'Full skill breakdown', 'Growth roadmap', 'Job fit scoring', 'Priority support', 'Early access to new features'],
-    popular: false,
+    credits: 25,
+    description: 'Everything you need for ongoing career growth',
+    features: ['25 resume analyses per month', 'Full skill breakdown', 'Growth roadmap', 'Job fit scoring', 'Priority support', 'Early access to new features'],
+    popular: true,
   },
 ]
 
@@ -100,7 +80,7 @@ export default function CreditsScreen() {
       </div>
 
       <p className="credits-footer">
-        Payments are processed securely by Stripe. Cancel anytime.
+        Payments are processed securely by Lemon Squeezy. Cancel anytime.
       </p>
     </div>
   )
