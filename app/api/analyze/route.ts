@@ -90,11 +90,10 @@ export async function POST(req: NextRequest) {
   let raw: string
   try {
     const message = await client.messages.create({
-      model: 'claude-sonnet-5',
+      model: 'claude-opus-4-8',
       max_tokens: 8192,
-      // Keep thinking off: this is a fast JSON-extraction call. On Sonnet 5,
-      // omitting `thinking` enables adaptive thinking by default, which adds
-      // latency and would push a thinking block ahead of the text output.
+      // Keep thinking off: this is a fast JSON-extraction call and we don't want
+      // the added latency or a thinking block landing ahead of the JSON output.
       thinking: { type: 'disabled' },
       system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: messageContent }],
@@ -111,8 +110,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 502 })
   }
 
-  // Strip accidental markdown fences
+  // Strip accidental markdown fences, then isolate the JSON object in case the
+  // model wrapped it in any explanatory prose.
   raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '')
+  const firstBrace = raw.indexOf('{')
+  const lastBrace = raw.lastIndexOf('}')
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    raw = raw.slice(firstBrace, lastBrace + 1)
+  }
 
   let result: AnalysisResult
   try {
