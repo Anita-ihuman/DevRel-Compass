@@ -218,15 +218,34 @@ a { text-decoration: none; color: inherit; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 1.75rem; padding: 2rem; text-align: center;
 }
-.loading-spinner { animation: spin 1.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin-arc { stroke: var(--accent); }
-.loading-current {
-  font-family: var(--ff-m); font-size: .92rem; color: var(--text);
-  animation: fadeMsg .4s ease; min-height: 1.4em;
+.loading-title {
+  font-family: var(--ff-d); font-size: 1.15rem; font-weight: 600; color: var(--text);
 }
-@keyframes fadeMsg { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-.loading-deep { font-size: .8rem; color: var(--accent); font-family: var(--ff-m); animation: fadeMsg .4s ease; }
+.loading-steps {
+  display: flex; flex-direction: column; gap: .9rem;
+  width: 100%; max-width: 380px; text-align: left;
+  list-style: none; padding: 0; margin: 0;
+}
+.loading-step {
+  display: flex; align-items: center; gap: .75rem;
+  font-family: var(--ff-m); font-size: .9rem;
+  transition: color .35s ease, opacity .35s ease;
+}
+.loading-step--pending { color: var(--text3); opacity: .55; }
+.loading-step--active  { color: var(--text); }
+.loading-step--done    { color: var(--text2); }
+.step-icon {
+  flex-shrink: 0; width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.step-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border2); }
+.step-check { color: var(--green); font-size: 1rem; line-height: 1; }
+.step-spinner {
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 2px solid var(--bg4); border-top-color: var(--accent);
+  animation: step-spin .7s linear infinite;
+}
+@keyframes step-spin { to { transform: rotate(360deg); } }
 .loading-note { font-size: .75rem; color: var(--text3); font-family: var(--ff-m); }
 
 /* ─── Results Screen ────────────────────────────────────────────────────────── */

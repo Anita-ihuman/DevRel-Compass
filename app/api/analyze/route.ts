@@ -90,7 +90,9 @@ export async function POST(req: NextRequest) {
   let raw: string
   try {
     const message = await client.messages.create({
-      model: 'claude-opus-4-8',
+      // Sonnet 5: stable, reliable, and markedly faster than Opus for this
+      // JSON-extraction workload (Opus ran ~27s on a 1-page PDF — too slow here).
+      model: 'claude-sonnet-5',
       max_tokens: 8192,
       // Keep thinking off: this is a fast JSON-extraction call and we don't want
       // the added latency or a thinking block landing ahead of the JSON output.

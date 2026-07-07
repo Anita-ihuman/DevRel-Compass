@@ -1,36 +1,49 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { LOADING_MESSAGES } from '@/lib/constants'
 
-interface Props {
-  msgIndex: number
-}
+// Ease-out cadence: steps advance quickly at first, then slow down so the list
+// doesn't run out before the (~30s) analysis returns. The final step stays
+// "active" until the parent unmounts this screen — it never falsely completes.
+const STEP_DELAYS = [2600, 3400, 4200, 5200, 6500] // ms between each of the 5 transitions
 
-export default function LoadingScreen({ msgIndex }: Props) {
-  const current    = LOADING_MESSAGES[msgIndex % LOADING_MESSAGES.length]
-  const passNumber = Math.floor(msgIndex / LOADING_MESSAGES.length)
+export default function LoadingScreen() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const lastIndex = LOADING_MESSAGES.length - 1
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = []
+    let elapsed = 0
+    // Schedule advancing up to the last step, then hold there.
+    for (let i = 0; i < lastIndex; i++) {
+      elapsed += STEP_DELAYS[Math.min(i, STEP_DELAYS.length - 1)]
+      timers.push(setTimeout(() => setActiveIndex(i + 1), elapsed))
+    }
+    return () => timers.forEach(clearTimeout)
+  }, [lastIndex])
 
   return (
     <div className="loading-screen">
-      <div className="loading-spinner">
-        <svg width="72" height="72" viewBox="0 0 72 72">
-          <circle cx="36" cy="36" r="28" fill="none" stroke="#1e1e2e" strokeWidth="5" />
-          <circle
-            cx="36" cy="36" r="28"
-            fill="none" stroke="#8b5cf6" strokeWidth="5"
-            strokeDasharray="176" strokeDashoffset="44"
-            strokeLinecap="round"
-            transform="rotate(-90 36 36)"
-            className="spin-arc"
-          />
-        </svg>
-      </div>
+      <h2 className="loading-title">Analyzing your DevRel profile</h2>
 
-      <p key={msgIndex} className="loading-current">{current}</p>
+      <ul className="loading-steps">
+        {LOADING_MESSAGES.map((label, i) => {
+          const state = i < activeIndex ? 'done' : i === activeIndex ? 'active' : 'pending'
+          return (
+            <li key={label} className={`loading-step loading-step--${state}`}>
+              <span className="step-icon">
+                {state === 'done' && <span className="step-check">✓</span>}
+                {state === 'active' && <span className="step-spinner" />}
+                {state === 'pending' && <span className="step-dot" />}
+              </span>
+              <span className="step-label">{label}</span>
+            </li>
+          )
+        })}
+      </ul>
 
-      {passNumber > 0 && (
-        <p className="loading-deep">Running a deep analysis — this one takes a moment</p>
-      )}
-
-      <p className="loading-note">Typically 15–30 seconds</p>
+      <p className="loading-note">Typically 20–35 seconds — hang tight</p>
     </div>
   )
 }

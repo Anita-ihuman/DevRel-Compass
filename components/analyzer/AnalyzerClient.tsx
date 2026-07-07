@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import UploadScreen from './UploadScreen'
 import LoadingScreen from './LoadingScreen'
 import ResultsScreen from './ResultsScreen'
 import LimitReached from './LimitReached'
 import type { AnalysisResult } from '@/types'
-import { LOADING_MESSAGES } from '@/lib/constants'
 
 const USES_KEY   = 'devrel_uses_count'
 // Temporary free cap until a pricing model is in place. Tracked client-side in
@@ -20,27 +19,13 @@ export default function AnalyzerClient() {
   const [results, setResults]     = useState<AnalysisResult | null>(null)
   const [hasJD, setHasJD]         = useState(false)
   const [error, setError]         = useState('')
-  const [msgIndex, setMsgIndex]   = useState(0)
   const [usesCount, setUsesCount] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     const uses = parseInt(localStorage.getItem(USES_KEY) ?? '0', 10)
     setUsesCount(uses)
     if (uses >= FREE_LIMIT) setView('limit')
   }, [])
-
-  function startMessages() {
-    setMsgIndex(0)
-    timerRef.current = setInterval(
-      () => setMsgIndex(i => (i + 1) % LOADING_MESSAGES.length),
-      2400
-    )
-  }
-
-  function stopMessages() {
-    if (timerRef.current) clearInterval(timerRef.current)
-  }
 
   async function handleAnalyze(file: File, jobDescription: string) {
     if (usesCount >= FREE_LIMIT) {
@@ -49,7 +34,6 @@ export default function AnalyzerClient() {
     }
 
     setView('loading')
-    startMessages()
 
     try {
       const body = new FormData()
@@ -80,12 +64,10 @@ export default function AnalyzerClient() {
       setUsesCount(newCount)
       localStorage.setItem(USES_KEY, String(newCount))
 
-      stopMessages()
       setResults(json as AnalysisResult)
       setHasJD(Boolean(jobDescription))
       setView('results')
     } catch (e) {
-      stopMessages()
       setError(e instanceof Error ? e.message : 'Something went wrong.')
       setView('error')
     }
@@ -100,10 +82,9 @@ export default function AnalyzerClient() {
     setResults(null)
     setError('')
     setHasJD(false)
-    setMsgIndex(0)
   }
 
-  if (view === 'loading') return <LoadingScreen msgIndex={msgIndex} />
+  if (view === 'loading') return <LoadingScreen />
 
   if (view === 'limit') return <LimitReached />
 

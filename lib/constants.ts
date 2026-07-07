@@ -13,17 +13,14 @@ export const SKILLS: SkillMeta[] = [
   { key: 'aiFluency',                      label: 'AI Fluency',                       hint: 'LLM integration, MCP, agent building, RAG, conversational AI platform experience' },
 ]
 
+// Steps shown in the analysis checklist (kept short — one line each).
 export const LOADING_MESSAGES = [
-  'Reading your resume...',
-  'Mapping your DevRel skills...',
-  'Benchmarking against Google, AWS, and Stripe bars...',
-  'Evaluating technical credibility and OSS depth...',
-  'Scoring content, community, and speaking evidence...',
-  'Assessing data, measurement, and AI fluency...',
-  'Analyzing developer experience sensibility...',
-  'Calculating your overall score...',
-  'Identifying strengths and growth gaps...',
-  'Building your personalised roadmap...',
+  'Reading your resume',
+  'Mapping your DevRel skills',
+  'Benchmarking against industry hiring bars',
+  'Scoring strengths and growth gaps',
+  'Calculating your overall score',
+  'Building your personalised roadmap',
 ]
 
 export const SYSTEM_PROMPT = `You are a senior DevRel hiring panel and career coach — drawing on collective experience at Google Developer Relations, AWS Developer Advocacy, Stripe, Twilio, HashiCorp, CNCF, and PolyAI. You assess candidates against the actual hiring bars used at these organisations and provide honest, actionable career guidance.
