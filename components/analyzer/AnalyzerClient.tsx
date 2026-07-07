@@ -57,11 +57,24 @@ export default function AnalyzerClient() {
       body.append('jobDescription', jobDescription)
 
       const res = await fetch('/api/analyze', { method: 'POST', body })
-      const json = await res.json()
 
       if (!res.ok) {
-        throw new Error(json.error ?? `Request failed (${res.status})`)
+        // A gateway timeout (504/408) returns HTML, not JSON — surface a clear
+        // message instead of letting res.json() throw a confusing parse error.
+        if (res.status === 504 || res.status === 408) {
+          throw new Error('The analysis timed out. Larger PDFs take longer — please try again.')
+        }
+        let message = `Request failed (${res.status})`
+        try {
+          const errJson = await res.json()
+          message = errJson.error ?? message
+        } catch {
+          /* non-JSON error body — keep the status-based message */
+        }
+        throw new Error(message)
       }
+
+      const json = await res.json()
 
       const newCount = usesCount + 1
       setUsesCount(newCount)

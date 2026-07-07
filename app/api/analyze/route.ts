@@ -4,6 +4,11 @@ import mammoth from 'mammoth'
 import { SYSTEM_PROMPT } from '@/lib/constants'
 import type { AnalysisResult } from '@/types'
 
+// Resume analysis is a single long Claude call (up to 4096 tokens, longer for
+// PDFs). Without this, the function can hit Vercel's shorter default timeout and
+// return a 504 mid-analysis. 60s works on all plans (Pro/Enterprise allow more).
+export const maxDuration = 60
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 async function fileToBase64(buffer: Buffer): Promise<string> {
@@ -85,12 +90,22 @@ export async function POST(req: NextRequest) {
   let raw: string
   try {
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
+      model: 'claude-sonnet-5',
+      max_tokens: 8192,
+      // Keep thinking off: this is a fast JSON-extraction call. On Sonnet 5,
+      // omitting `thinking` enables adaptive thinking by default, which adds
+      // latency and would push a thinking block ahead of the text output.
+      thinking: { type: 'disabled' },
       system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: messageContent }],
     })
-    raw = (message.content[0] as Anthropic.Messages.TextBlock).text.trim()
+    const textBlock = message.content.find(
+      (b): b is Anthropic.Messages.TextBlock => b.type === 'text',
+    )
+    if (!textBlock) {
+      throw new Error('Claude returned no text content.')
+    }
+    raw = textBlock.text.trim()
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Claude API call failed.'
     return NextResponse.json({ error: msg }, { status: 502 })
