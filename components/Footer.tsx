@@ -32,25 +32,11 @@ export default function Footer() {
             >
               GitHub →
             </a>
-            <a
-              href="https://github.com/Anita-ihuman/DevRel-Compass/blob/main/CONTRIBUTING.md"
-              className="footer-link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Contributing
-            </a>
           </div>
         </div>
 
         <div className="footer-bottom">
           <span className="footer-copy">© {new Date().getFullYear()} DevRel Compass. MIT License.</span>
-          <span className="footer-powered">
-            Powered by{' '}
-            <a href="https://anthropic.com" className="footer-link-inline" target="_blank" rel="noopener noreferrer">
-              Claude
-            </a>
-          </span>
         </div>
       </div>
     </footer>
