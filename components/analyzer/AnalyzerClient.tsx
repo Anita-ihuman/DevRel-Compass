@@ -68,7 +68,16 @@ export default function AnalyzerClient() {
       setHasJD(Boolean(jobDescription))
       setView('results')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong.')
+      // fetch() rejects with a TypeError on network-level failures (server
+      // unreachable). Everything else is an Error we threw with a server-safe
+      // message (already generic in production).
+      const message =
+        e instanceof TypeError
+          ? "Couldn't reach the server. Please check your connection and try again."
+          : e instanceof Error && e.message
+            ? e.message
+            : 'Something went wrong. Please try again.'
+      setError(message)
       setView('error')
     }
   }
@@ -92,9 +101,9 @@ export default function AnalyzerClient() {
     <div className="error-screen">
       <div className="err-icon">⚠</div>
       <h2 className="err-title">Analysis Failed</h2>
-      <pre className="err-msg">{error}</pre>
+      <p className="err-msg">{error}</p>
       <p className="err-hint">
-        Common causes: missing or invalid API key in <code>.env.local</code>, file too large, or rate limit hit.
+        Please try again in a moment. If it keeps happening, try a different file or check back shortly.
       </p>
       <button className="retry-btn" onClick={reset}>Try Again</button>
     </div>

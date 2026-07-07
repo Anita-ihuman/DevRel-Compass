@@ -11,6 +11,15 @@ export const maxDuration = 60
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+const GENERIC_ERROR = "We couldn't analyze your resume right now. Please try again in a moment."
+
+// Never leak upstream/internal error detail (billing, API keys, model names,
+// rate limits) to users in production. The real error is always logged
+// server-side; only local dev sees the detail in the response.
+function safeError(detail: string): string {
+  return process.env.NODE_ENV === 'production' ? GENERIC_ERROR : detail
+}
+
 async function fileToBase64(buffer: Buffer): Promise<string> {
   return buffer.toString('base64')
 }
@@ -37,8 +46,9 @@ async function extractText(file: File): Promise<{ type: 'pdf'; base64: string } 
 
 export async function POST(req: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('Analyze: ANTHROPIC_API_KEY is not configured')
     return NextResponse.json(
-      { error: 'ANTHROPIC_API_KEY is not configured. Add it to your .env.local file.' },
+      { error: safeError('ANTHROPIC_API_KEY is not configured (.env.local).') },
       { status: 500 }
     )
   }
@@ -108,8 +118,9 @@ export async function POST(req: NextRequest) {
     }
     raw = textBlock.text.trim()
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Claude API call failed.'
-    return NextResponse.json({ error: msg }, { status: 502 })
+    const detail = e instanceof Error ? e.message : 'Claude API call failed.'
+    console.error('Analyze: Claude API call failed:', detail)
+    return NextResponse.json({ error: safeError(detail) }, { status: 502 })
   }
 
   // Strip accidental markdown fences, then isolate the JSON object in case the
@@ -125,8 +136,9 @@ export async function POST(req: NextRequest) {
   try {
     result = JSON.parse(raw) as AnalysisResult
   } catch {
+    console.error('Analyze: failed to parse Claude response as JSON')
     return NextResponse.json(
-      { error: 'Claude returned an unexpected response format. Please try again.' },
+      { error: safeError('Claude returned an unexpected response format.') },
       { status: 502 }
     )
   }
