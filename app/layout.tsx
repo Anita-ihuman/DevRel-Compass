@@ -3,7 +3,16 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import './globals.css'
 
+// Absolute base for OG/Twitter image URLs. Prefer an explicit domain, else the
+// Vercel-provided production/deployment URL, else localhost for dev.
+const appUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
+  (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
+  'http://localhost:3000'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: {
     default: 'DevRel Compass',
     template: '%s | DevRel Compass',
@@ -12,6 +21,13 @@ export const metadata: Metadata = {
     'Open-source career development platform for Developer Relations practitioners. Skills assessment, career roadmap, and resources.',
   openGraph: {
     type: 'website',
+    siteName: 'DevRel Compass',
+    url: appUrl,
+    title: 'DevRel Compass',
+    description: 'Skills assessment and career roadmap for Developer Relations practitioners.',
+  },
+  twitter: {
+    card: 'summary_large_image',
     title: 'DevRel Compass',
     description: 'Skills assessment and career roadmap for Developer Relations practitioners.',
   },

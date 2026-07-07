@@ -130,9 +130,6 @@ a { text-decoration: none; color: inherit; }
   padding-top: 1.5rem; border-top: 1px solid var(--border);
 }
 .footer-copy { font-size: .75rem; color: var(--text3); font-family: var(--ff-m); }
-.footer-powered { font-size: .75rem; color: var(--text3); font-family: var(--ff-m); }
-.footer-link-inline { color: var(--accent); }
-.footer-link-inline:hover { text-decoration: underline; }
 
 @media (max-width: 768px) {
   .footer-top { grid-template-columns: 1fr 1fr; }
