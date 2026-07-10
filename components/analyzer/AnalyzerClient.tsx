@@ -43,6 +43,12 @@ export default function AnalyzerClient() {
       const res = await fetch('/api/analyze', { method: 'POST', body })
 
       if (!res.ok) {
+        // Server-side rate limit reached (the real, un-bypassable cap). Show the
+        // limit wall rather than the generic error screen.
+        if (res.status === 429) {
+          setView('limit')
+          return
+        }
         // A gateway timeout (504/408) returns HTML, not JSON — surface a clear
         // message instead of letting res.json() throw a confusing parse error.
         if (res.status === 504 || res.status === 408) {

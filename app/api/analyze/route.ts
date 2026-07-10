@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import mammoth from 'mammoth'
 import { SYSTEM_PROMPT } from '@/lib/constants'
+import { consumeAnalysisLimit } from '@/lib/ratelimit'
 import type { AnalysisResult } from '@/types'
 
 // Resume analysis is a single long Claude call (up to 4096 tokens, longer for
@@ -22,6 +23,15 @@ function safeError(detail: string): string {
 
 async function fileToBase64(buffer: Buffer): Promise<string> {
   return buffer.toString('base64')
+}
+
+// On Vercel the client IP arrives in x-forwarded-for (first entry is the real
+// client; the rest are proxies). Fall back to x-real-ip, then a constant so the
+// limiter still functions in local dev where no forwarding header is set.
+function getClientIp(req: NextRequest): string {
+  const xff = req.headers.get('x-forwarded-for')
+  if (xff) return xff.split(',')[0].trim()
+  return req.headers.get('x-real-ip')?.trim() || '127.0.0.1'
 }
 
 async function extractText(file: File): Promise<{ type: 'pdf'; base64: string } | { type: 'text'; content: string }> {
@@ -82,6 +92,22 @@ export async function POST(req: NextRequest) {
   const jobNote = jobDescription
     ? `Also analyze fit against this job description — populate jobFit with 5–7 specific requirement areas from the posting, and set fitScore (0–100) and fitLabel ("Strong Fit" | "Good Fit" | "Partial Fit" | "Weak Fit" | "Poor Fit") based on overall match.\n\nJOB DESCRIPTION:\n${jobDescription}`
     : `No job description provided. Return an empty array for jobFit, and set fitScore to null and fitLabel to null.`
+
+  // Gate on the per-IP ceiling here — after the upload is validated but before
+  // the paid Claude call — so bad uploads never consume a user's allowance, and
+  // token spend is bounded even when the client-side counter is bypassed.
+  const limit = await consumeAnalysisLimit(getClientIp(req))
+  if (limit.enabled && !limit.success) {
+    const msLeft = Math.max(0, limit.reset - Date.now())
+    return NextResponse.json(
+      {
+        error:
+          "You've reached the free analysis limit. Paid plans with higher limits are coming soon.",
+        limit: true,
+      },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(msLeft / 1000)) } },
+    )
+  }
 
   const userText = `Please analyze this resume for DevRel skills assessment.\n\n${jobNote}`
 

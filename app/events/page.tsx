@@ -37,7 +37,30 @@ const pastWebinars: {
 
 // ── Upcoming events ────────────────────────────────────────────────────────
 // Add entries here as new sessions get scheduled.
-const upcomingEvents: { title: string; date: string; description: string }[] = []
+const upcomingEvents: {
+  title: string
+  date: string
+  speaker?: string
+  description: string
+  link?: string
+}[] = [
+  {
+    title: 'Turning Developer Education into Business Outcomes',
+    date: 'Friday, 17 July 2026',
+    speaker: 'Linda Ikechukwu',
+    description:
+      "Developer education does not end with documentation, tutorials, or a few YouTube videos; it's a strategic driver of product adoption, developer success, and long-term business growth. Join Linda for a fireside chat on building impactful education programs that deliver measurable outcomes, followed by a live audience Q&A.",
+    link: 'https://riverside.com/webinar/registration/eyJldmVudElkIjoiNmE0ZDEwMDNjMDg4MGE4ZWI4N2QyZTRjIiwic2x1ZyI6ImFuaXRhLWlodW1hbnMtc3R1ZGlvIn0=',
+  },
+  {
+    title: 'Beyond Evangelism: Applying Systems Thinking to Modern DevRel',
+    date: 'Tuesday, 28 July 2026',
+    speaker: 'Rohit Ghumare',
+    description:
+      'This session explores how systems thinking can help DevRel teams move beyond reactive execution and build scalable, resilient programs that influence developer adoption and business growth.',
+    link: 'https://riverside.com/webinar/registration/eyJldmVudElkIjoiNmE0ZTMxMjk2ZGE0NGVmN2NkZTQ5NjNlIiwic2x1ZyI6ImFuaXRhLWlodW1hbnMtc3R1ZGlvIn0=',
+  },
+]
 
 export default function EventsPage() {
   return (
@@ -101,7 +124,7 @@ export default function EventsPage() {
         {/* ── Hero ── */}
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="ev-pill" style={{ marginBottom: '1.25rem' }}>
-            Webinar Series · Season 1
+            Webinar Series · Season 2
           </span>
 
           <h1
@@ -192,14 +215,30 @@ export default function EventsPage() {
           {upcomingEvents.length > 0 ? (
             <div className="ev-grid">
               {upcomingEvents.map((e) => (
-                <div key={e.title} className="ev-card" style={{ padding: '1.25rem' }}>
-                  <span className="ev-date" style={{ marginBottom: '.75rem' }}>{e.date}</span>
+                <div key={e.title} className="ev-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column' }}>
+                  <span className="ev-date" style={{ alignSelf: 'flex-start', marginBottom: '.75rem' }}>{e.date}</span>
                   <h3 style={{ fontFamily: 'var(--ff-d)', fontSize: 16, fontWeight: 700, margin: '.75rem 0 6px', color: 'var(--text)' }}>
                     {e.title}
                   </h3>
+                  {e.speaker && (
+                    <p style={{ fontFamily: 'var(--ff-m)', fontSize: 12, color: 'var(--accent)', margin: '0 0 .75rem' }}>
+                      with {e.speaker}
+                    </p>
+                  )}
                   <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.65, margin: 0 }}>
                     {e.description}
                   </p>
+                  {e.link && (
+                    <a
+                      href={e.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ev-cta"
+                      style={{ alignSelf: 'flex-start', marginTop: '1.25rem' }}
+                    >
+                      Register →
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
