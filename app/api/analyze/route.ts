@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import mammoth from 'mammoth'
 import { SYSTEM_PROMPT } from '@/lib/constants'
 import { consumeAnalysisLimit } from '@/lib/ratelimit'
+import { getClientIp } from '@/lib/ip'
 import type { AnalysisResult } from '@/types'
 
 // Resume analysis is a single long Claude call (up to 4096 tokens, longer for
@@ -23,15 +24,6 @@ function safeError(detail: string): string {
 
 async function fileToBase64(buffer: Buffer): Promise<string> {
   return buffer.toString('base64')
-}
-
-// On Vercel the client IP arrives in x-forwarded-for (first entry is the real
-// client; the rest are proxies). Fall back to x-real-ip, then a constant so the
-// limiter still functions in local dev where no forwarding header is set.
-function getClientIp(req: NextRequest): string {
-  const xff = req.headers.get('x-forwarded-for')
-  if (xff) return xff.split(',')[0].trim()
-  return req.headers.get('x-real-ip')?.trim() || '127.0.0.1'
 }
 
 async function extractText(file: File): Promise<{ type: 'pdf'; base64: string } | { type: 'text'; content: string }> {
