@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'DevRel Strategy Room — Webinar Series',
   description:
     'Live sessions exploring DevRel strategy, tool adoption psychology, and developer program design — from practitioners who have built in the trenches.',
+  alternates: { canonical: '/events' },
 }
 
 // ── Past webinars ──────────────────────────────────────────────────────────

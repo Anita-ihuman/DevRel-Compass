@@ -1,36 +1,63 @@
 import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/next'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { siteUrl, siteName, siteDescription } from '@/lib/site'
 import './globals.css'
 
-// Absolute base for OG/Twitter image URLs. Prefer an explicit domain, else the
-// Vercel-provided production/deployment URL, else localhost for dev.
-const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
-  (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
-  'http://localhost:3000'
+// Google Analytics 4 measurement ID. Set NEXT_PUBLIC_GA_ID in your Vercel
+// project env. Only loaded in production so local dev traffic never pollutes
+// your GA reports.
+const gaId = process.env.NEXT_PUBLIC_GA_ID
 
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: new URL(siteUrl),
   title: {
-    default: 'DevRel Compass',
-    template: '%s | DevRel Compass',
+    default: siteName,
+    template: `%s | ${siteName}`,
   },
-  description:
-    'Open-source career development platform for Developer Relations practitioners. Skills assessment, career roadmap, and resources.',
+  description: siteDescription,
   openGraph: {
     type: 'website',
-    siteName: 'DevRel Compass',
-    url: appUrl,
-    title: 'DevRel Compass',
+    siteName,
+    url: siteUrl,
+    title: siteName,
     description: 'Skills assessment and career roadmap for Developer Relations practitioners.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DevRel Compass',
+    title: siteName,
     description: 'Skills assessment and career roadmap for Developer Relations practitioners.',
   },
+  // Set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION to the token from Google Search
+  // Console to verify ownership (unlocks Search analytics + sitemap submission).
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
+}
+
+// Site-level structured data so search engines understand the brand/site.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: siteName,
+      url: siteUrl,
+      // Square logo ≥112px, per Google's Organization logo requirement.
+      logo: `${siteUrl}/apple-icon`,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      name: siteName,
+      url: siteUrl,
+      description: siteDescription,
+      publisher: { '@id': `${siteUrl}/#organization` },
+    },
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -45,10 +72,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Nav />
         <main>{children}</main>
         <Footer />
+        <Analytics />
       </body>
+      {gaId && process.env.NODE_ENV === 'production' && <GoogleAnalytics gaId={gaId} />}
     </html>
   )
 }

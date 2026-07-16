@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { marked } from 'marked'
 import { getAllPosts, getPostBySlug } from '@/lib/blog'
+import { siteUrl, siteName } from '@/lib/site'
 import ShareBar from '@/components/blog/ShareBar'
 import LikeButton from '@/components/blog/LikeButton'
 
@@ -23,10 +24,12 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: `/blog/${post.meta.slug}` },
     openGraph: {
       type: 'article',
       title,
       description,
+      url: `/blog/${post.meta.slug}`,
       images: thumbnail ? [thumbnail] : undefined,
     },
     twitter: { card: 'summary_large_image', title, description },
@@ -52,8 +55,24 @@ export default async function BlogPostPage({
 
   const html = await marked.parse(post.content)
 
+  const articleLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.meta.title,
+    description: post.meta.description,
+    author: post.meta.author ? { '@type': 'Person', name: post.meta.author } : undefined,
+    datePublished: post.meta.date || undefined,
+    image: post.meta.thumbnail ? `${siteUrl}${post.meta.thumbnail}` : undefined,
+    url: `${siteUrl}/blog/${post.meta.slug}`,
+    publisher: { '@type': 'Organization', name: siteName, logo: `${siteUrl}/icon` },
+  }
+
   return (
     <div className="bl-wrap">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+      />
       <article className="bl-post">
         <Link href="/blog" className="bl-back">← All posts</Link>
 

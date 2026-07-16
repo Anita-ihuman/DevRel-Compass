@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Blog',
   description:
     'Essays and field notes on Developer Relations — career growth, developer education, community, and systems thinking for DevRel practitioners.',
+  alternates: { canonical: '/blog' },
 }
 
 function formatDate(iso: string): string {
