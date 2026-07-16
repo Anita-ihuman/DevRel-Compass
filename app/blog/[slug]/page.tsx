@@ -85,7 +85,7 @@ export default async function BlogPostPage({
           {post.meta.author && <p className="bl-post-author">By {post.meta.author}</p>}
           <div className="bl-actions">
             <LikeButton slug={post.meta.slug} />
-            <ShareBar title={post.meta.title} />
+            <ShareBar title={post.meta.title} slug={post.meta.slug} />
           </div>
         </header>
 
