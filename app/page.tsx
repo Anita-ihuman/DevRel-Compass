@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import AnalyzerClient from '@/components/analyzer/AnalyzerClient'
+import HomeUpcomingEvents from '@/components/HomeUpcomingEvents'
 
 export const metadata: Metadata = {
   title: 'DevRel Skills Analyzer',
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  return <AnalyzerClient />
+  return (
+    <>
+      <AnalyzerClient />
+      <HomeUpcomingEvents />
+    </>
+  )
 }
