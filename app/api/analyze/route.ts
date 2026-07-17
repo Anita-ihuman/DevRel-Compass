@@ -4,6 +4,17 @@ import mammoth from 'mammoth'
 import { SYSTEM_PROMPT } from '@/lib/constants'
 import { consumeAnalysisLimit } from '@/lib/ratelimit'
 import { getClientIp } from '@/lib/ip'
+import { auth } from '@/auth'
+import {
+  ANON_FREE_LIMIT,
+  ACCOUNT_FREE_LIMIT,
+  getAccountUsage,
+  incrementAccountUsage,
+  getAnonUses,
+  incrementAnonUses,
+  saveAnalysis,
+} from '@/lib/usage'
+import { logAnalysisEvent } from '@/lib/metrics'
 import type { AnalysisResult } from '@/types'
 
 // Resume analysis is a single long Claude call (up to 4096 tokens, longer for
@@ -85,20 +96,38 @@ export async function POST(req: NextRequest) {
     ? `Also analyze fit against this job description — populate jobFit with 5–7 specific requirement areas from the posting, and set fitScore (0–100) and fitLabel ("Strong Fit" | "Good Fit" | "Partial Fit" | "Weak Fit" | "Poor Fit") based on overall match.\n\nJOB DESCRIPTION:\n${jobDescription}`
     : `No job description provided. Return an empty array for jobFit, and set fitScore to null and fitLabel to null.`
 
-  // Gate on the per-IP ceiling here — after the upload is validated but before
-  // the paid Claude call — so bad uploads never consume a user's allowance, and
-  // token spend is bounded even when the client-side counter is bypassed.
-  const limit = await consumeAnalysisLimit(getClientIp(req))
-  if (limit.enabled && !limit.success) {
-    const msLeft = Math.max(0, limit.reset - Date.now())
-    return NextResponse.json(
-      {
-        error:
-          "You've reached the free analysis limit. Paid plans with higher limits are coming soon.",
-        limit: true,
-      },
-      { status: 429, headers: { 'Retry-After': String(Math.ceil(msLeft / 1000)) } },
-    )
+  // ── Gating: enforce free allowances here — after the upload is validated but
+  // before the paid Claude call — so bad uploads never burn an allowance.
+  const session = await auth()
+  const userId = session?.user?.id ?? null
+  const ip = getClientIp(req)
+
+  if (userId) {
+    // Signed in: free analyses per account, then the paywall (M3).
+    if ((await getAccountUsage(userId)) >= ACCOUNT_FREE_LIMIT) {
+      return NextResponse.json(
+        { error: "You've used your free analyses. Paid plans are coming soon.", requirePlan: true },
+        { status: 402 },
+      )
+    }
+  } else {
+    // Anonymous: one free analysis, then they must sign in.
+    if ((await getAnonUses(ip)) >= ANON_FREE_LIMIT) {
+      return NextResponse.json(
+        { error: 'Sign in to keep analyzing — you have used your free analysis.', requireAuth: true },
+        { status: 401 },
+      )
+    }
+    // Secondary abuse ceiling for anonymous traffic, so token spend stays bounded
+    // even if the anon counter is briefly unavailable.
+    const limit = await consumeAnalysisLimit(ip)
+    if (limit.enabled && !limit.success) {
+      const msLeft = Math.max(0, limit.reset - Date.now())
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.', limit: true },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(msLeft / 1000)) } },
+      )
+    }
   }
 
   const userText = `Please analyze this resume for DevRel skills assessment.\n\n${jobNote}`
@@ -159,6 +188,20 @@ export async function POST(req: NextRequest) {
       { error: safeError('Claude returned an unexpected response format.') },
       { status: 502 }
     )
+  }
+
+  // Record usage and, for signed-in users, save to history. Best-effort — a
+  // bookkeeping hiccup shouldn't fail an analysis the user already spent tokens on.
+  try {
+    if (userId) {
+      await incrementAccountUsage(userId)
+      await saveAnalysis(userId, result, Boolean(jobDescription))
+    } else {
+      await incrementAnonUses(ip)
+    }
+    await logAnalysisEvent(userId)
+  } catch (e) {
+    console.error('Analyze: usage/history bookkeeping failed:', e instanceof Error ? e.message : e)
   }
 
   return NextResponse.json(result)
