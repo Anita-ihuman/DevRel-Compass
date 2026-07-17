@@ -825,3 +825,43 @@ a { text-decoration: none; color: inherit; }
 }
 .bl-prose pre code { background: none; color: var(--text2); padding: 0; }
 .bl-prose hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+/* ── Homepage: upcoming events highlight ─────────────────────────────────── */
+.home-events { border-top: 1px solid var(--border); background: var(--bg2); }
+.home-events-inner { max-width: 960px; margin: 0 auto; padding: 3.5rem 1.5rem 4rem; }
+.home-events-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap;
+}
+.home-events-pill {
+  display: inline-block; font-family: var(--ff-m);
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 8px;
+  background: var(--glow); color: var(--accent); border: 1px solid var(--border2);
+}
+.home-events-title { font-family: var(--ff-d); font-size: 1.6rem; font-weight: 700; color: var(--text); margin: .75rem 0 0; }
+.home-events-all { font-family: var(--ff-m); font-size: 13px; color: var(--accent); white-space: nowrap; }
+.home-events-all:hover { color: var(--text); }
+
+.home-events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 760px) { .home-events-grid { grid-template-columns: 1fr; } }
+
+.home-event-card {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--bg3);
+  padding: 1.25rem; transition: border-color .15s ease, transform .15s ease;
+}
+.home-event-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.home-event-date {
+  align-self: flex-start; font-family: var(--ff-m); font-size: 11px;
+  padding: 3px 9px; border-radius: 6px; margin-bottom: .75rem;
+  background: rgba(45,212,191,.12); color: var(--teal); border: 1px solid rgba(45,212,191,.35);
+}
+.home-event-title { font-family: var(--ff-d); font-size: 15px; font-weight: 700; line-height: 1.35; color: var(--text); margin: 0 0 4px; }
+.home-event-speaker { font-family: var(--ff-m); font-size: 12px; color: var(--accent); margin: 0; }
+.home-event-cta {
+  align-self: flex-start; margin-top: 1rem;
+  background: var(--accent); color: #fff;
+  padding: .5rem 1.1rem; border-radius: 8px; font-size: 13px; font-weight: 600;
+}
+.home-event-cta:hover { background: var(--accent2); }
