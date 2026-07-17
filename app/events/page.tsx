@@ -2,11 +2,21 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { upcomingEvents } from '@/lib/events'
 
+const EVENTS_DESCRIPTION =
+  'Live sessions exploring DevRel strategy, tool adoption psychology, and developer program design — from practitioners who have built in the trenches.'
+
 export const metadata: Metadata = {
   title: 'DevRel Strategy Room — Webinar Series',
-  description:
-    'Live sessions exploring DevRel strategy, tool adoption psychology, and developer program design — from practitioners who have built in the trenches.',
+  description: EVENTS_DESCRIPTION,
   alternates: { canonical: '/events' },
+  // Without its own og:url, this page inherits the home page's og:url from the
+  // layout — so shared /events links send people to the home page. Pin it here.
+  openGraph: {
+    type: 'website',
+    url: '/events',
+    title: 'DevRel Strategy Room — Webinar Series',
+    description: EVENTS_DESCRIPTION,
+  },
 }
 
 // ── Past webinars ──────────────────────────────────────────────────────────
