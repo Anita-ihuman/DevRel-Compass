@@ -1,11 +1,22 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { upcomingEvents } from '@/lib/events'
+
+const EVENTS_DESCRIPTION =
+  'Live sessions exploring DevRel strategy, tool adoption psychology, and developer program design — from practitioners who have built in the trenches.'
 
 export const metadata: Metadata = {
   title: 'DevRel Strategy Room — Webinar Series',
-  description:
-    'Live sessions exploring DevRel strategy, tool adoption psychology, and developer program design — from practitioners who have built in the trenches.',
+  description: EVENTS_DESCRIPTION,
   alternates: { canonical: '/events' },
+  // Without its own og:url, this page inherits the home page's og:url from the
+  // layout — so shared /events links send people to the home page. Pin it here.
+  openGraph: {
+    type: 'website',
+    url: '/events',
+    title: 'DevRel Strategy Room — Webinar Series',
+    description: EVENTS_DESCRIPTION,
+  },
 }
 
 // ── Past webinars ──────────────────────────────────────────────────────────
@@ -33,33 +44,6 @@ const pastWebinars: {
       'A deep dive into how AI is transforming the way developers and platform teams build, deploy, and operate production-grade cloud systems, from infrastructure provisioning to debugging and optimization.',
     embedUrl: 'https://www.youtube.com/embed/OvyBAJYrzw0',
     tags: ['AI', 'DevRel', 'Cloud'],
-  },
-]
-
-// ── Upcoming events ────────────────────────────────────────────────────────
-// Add entries here as new sessions get scheduled.
-const upcomingEvents: {
-  title: string
-  date: string
-  speaker?: string
-  description: string
-  link?: string
-}[] = [
-  {
-    title: 'Turning Developer Education into Business Outcomes',
-    date: 'Friday, 17 July 2026',
-    speaker: 'Linda Ikechukwu',
-    description:
-      "Developer education does not end with documentation, tutorials, or a few YouTube videos; it's a strategic driver of product adoption, developer success, and long-term business growth. Join Linda for a fireside chat on building impactful education programs that deliver measurable outcomes, followed by a live audience Q&A.",
-    link: 'https://riverside.com/webinar/registration/eyJldmVudElkIjoiNmE0ZDEwMDNjMDg4MGE4ZWI4N2QyZTRjIiwic2x1ZyI6ImFuaXRhLWlodW1hbnMtc3R1ZGlvIn0=',
-  },
-  {
-    title: 'Beyond Evangelism: Applying Systems Thinking to Modern DevRel',
-    date: 'Tuesday, 28 July 2026',
-    speaker: 'Rohit Ghumare',
-    description:
-      'This session explores how systems thinking can help DevRel teams move beyond reactive execution and build scalable, resilient programs that influence developer adoption and business growth.',
-    link: 'https://riverside.com/webinar/registration/eyJldmVudElkIjoiNmE0ZTMxMjk2ZGE0NGVmN2NkZTQ5NjNlIiwic2x1ZyI6ImFuaXRhLWlodW1hbnMtc3R1ZGlvIn0=',
   },
 ]
 

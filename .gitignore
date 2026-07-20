@@ -25,3 +25,4 @@ yarn-error.log*
 .neon
 *.tsbuildinfo
 next-env.d.ts
+.neon

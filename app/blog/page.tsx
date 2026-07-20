@@ -7,6 +7,13 @@ export const metadata: Metadata = {
   description:
     'Essays and field notes on Developer Relations — career growth, developer education, community, and systems thinking for DevRel practitioners.',
   alternates: { canonical: '/blog' },
+  openGraph: {
+    type: 'website',
+    url: '/blog',
+    title: 'Blog',
+    description:
+      'Essays and field notes on Developer Relations — career growth, developer education, community, and systems thinking for DevRel practitioners.',
+  },
 }
 
 function formatDate(iso: string): string {
