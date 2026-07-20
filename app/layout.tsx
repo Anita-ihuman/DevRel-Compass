@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import Providers from '@/components/Providers'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { siteUrl, siteName, siteDescription } from '@/lib/site'
@@ -71,15 +73,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>
+      {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
+          attributes onto <body> before hydration, which is harmless. */}
+      <body suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Nav />
-        <main>{children}</main>
-        <Footer />
+        <Providers>
+          <Nav />
+          <main>{children}</main>
+          <Footer />
+        </Providers>
         <Analytics />
+        <SpeedInsights />
       </body>
       {gaId && process.env.NODE_ENV === 'production' && <GoogleAnalytics gaId={gaId} />}
     </html>

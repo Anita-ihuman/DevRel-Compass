@@ -5,34 +5,39 @@ import UploadScreen from './UploadScreen'
 import LoadingScreen from './LoadingScreen'
 import ResultsScreen from './ResultsScreen'
 import LimitReached from './LimitReached'
+import SignInGate from './SignInGate'
 import type { AnalysisResult } from '@/types'
 
-const USES_KEY   = 'devrel_uses_count'
-// Temporary free cap until a pricing model is in place. Tracked client-side in
-// localStorage — a soft limit for the open beta, not hard enforcement.
-const FREE_LIMIT = 3
-
-type View = 'upload' | 'loading' | 'results' | 'error' | 'limit'
+// The server is the source of truth for the free-analysis allowance (see
+// /api/usage and /api/analyze). Anonymous visitors get 1 free, accounts get a
+// few more, then the paywall (M3).
+type View = 'init' | 'upload' | 'loading' | 'results' | 'error' | 'limit' | 'signin'
 
 export default function AnalyzerClient() {
-  const [view, setView]           = useState<View>('upload')
-  const [results, setResults]     = useState<AnalysisResult | null>(null)
-  const [hasJD, setHasJD]         = useState(false)
-  const [error, setError]         = useState('')
-  const [usesCount, setUsesCount] = useState(0)
+  const [view, setView]       = useState<View>('init')
+  const [results, setResults] = useState<AnalysisResult | null>(null)
+  const [hasJD, setHasJD]     = useState(false)
+  const [error, setError]     = useState('')
+  const [signedIn, setSignedIn] = useState(false)
+  const [remaining, setRemaining] = useState(0)
 
   useEffect(() => {
-    const uses = parseInt(localStorage.getItem(USES_KEY) ?? '0', 10)
-    setUsesCount(uses)
-    if (uses >= FREE_LIMIT) setView('limit')
+    let active = true
+    fetch('/api/usage')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!active) return
+        setSignedIn(Boolean(d.signedIn))
+        setRemaining(d.remaining ?? 0)
+        setView((d.remaining ?? 0) <= 0 ? (d.signedIn ? 'limit' : 'signin') : 'upload')
+      })
+      .catch(() => active && setView('upload'))
+    return () => {
+      active = false
+    }
   }, [])
 
   async function handleAnalyze(file: File, jobDescription: string) {
-    if (usesCount >= FREE_LIMIT) {
-      setView('limit')
-      return
-    }
-
     setView('loading')
 
     try {
@@ -43,14 +48,10 @@ export default function AnalyzerClient() {
       const res = await fetch('/api/analyze', { method: 'POST', body })
 
       if (!res.ok) {
-        // Server-side rate limit reached (the real, un-bypassable cap). Show the
-        // limit wall rather than the generic error screen.
-        if (res.status === 429) {
-          setView('limit')
-          return
-        }
-        // A gateway timeout (504/408) returns HTML, not JSON — surface a clear
-        // message instead of letting res.json() throw a confusing parse error.
+        // Gate responses: anon used their free analysis, or account is out.
+        if (res.status === 401) { setView('signin'); return }
+        if (res.status === 402 || res.status === 429) { setView('limit'); return }
+        // A gateway timeout (504/408) returns HTML, not JSON — give a clear message.
         if (res.status === 504 || res.status === 408) {
           throw new Error('The analysis timed out. Larger PDFs take longer — please try again.')
         }
@@ -65,18 +66,11 @@ export default function AnalyzerClient() {
       }
 
       const json = await res.json()
-
-      const newCount = usesCount + 1
-      setUsesCount(newCount)
-      localStorage.setItem(USES_KEY, String(newCount))
-
+      setRemaining((r) => Math.max(0, r - 1))
       setResults(json as AnalysisResult)
       setHasJD(Boolean(jobDescription))
       setView('results')
     } catch (e) {
-      // fetch() rejects with a TypeError on network-level failures (server
-      // unreachable). Everything else is an Error we threw with a server-safe
-      // message (already generic in production).
       const message =
         e instanceof TypeError
           ? "Couldn't reach the server. Please check your connection and try again."
@@ -89,8 +83,8 @@ export default function AnalyzerClient() {
   }
 
   function reset() {
-    if (usesCount >= FREE_LIMIT) {
-      setView('limit')
+    if (remaining <= 0) {
+      setView(signedIn ? 'limit' : 'signin')
       return
     }
     setView('upload')
@@ -99,7 +93,12 @@ export default function AnalyzerClient() {
     setHasJD(false)
   }
 
+  // Brief neutral state while we fetch the allowance (avoids a wrong-screen flash).
+  if (view === 'init') return <div style={{ minHeight: '60vh' }} />
+
   if (view === 'loading') return <LoadingScreen />
+
+  if (view === 'signin') return <SignInGate />
 
   if (view === 'limit') return <LimitReached />
 
@@ -119,5 +118,5 @@ export default function AnalyzerClient() {
     return <ResultsScreen data={results} hasJD={hasJD} onReset={reset} />
   }
 
-  return <UploadScreen onAnalyze={handleAnalyze} usesLeft={Math.max(0, FREE_LIMIT - usesCount)} />
+  return <UploadScreen onAnalyze={handleAnalyze} usesLeft={remaining} />
 }

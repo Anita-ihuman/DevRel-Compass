@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 
 const NAV_LINKS = [
   { href: '/',        label: 'Skills Analyzer' },
@@ -10,6 +11,41 @@ const NAV_LINKS = [
   { href: '/events',  label: 'Events'          },
   { href: '/blog',    label: 'Blog'            },
 ]
+
+function AccountControls({ onNavigate }: { onNavigate?: () => void }) {
+  const { data: session, status } = useSession()
+  if (status === 'loading') return null
+
+  if (!session?.user) {
+    return (
+      <Link href="/signin" className="nav-signin" onClick={onNavigate}>
+        Sign in
+      </Link>
+    )
+  }
+
+  return (
+    <div className="nav-account">
+      {session.user.isAdmin && (
+        <Link href="/admin" className="nav-link" onClick={onNavigate}>
+          Admin
+        </Link>
+      )}
+      {session.user.username ? (
+        <Link href="/profile" className="nav-user" onClick={onNavigate}>
+          @{session.user.username}
+        </Link>
+      ) : (
+        <Link href="/onboarding" className="nav-signin" onClick={onNavigate}>
+          Finish setup
+        </Link>
+      )}
+      <button className="nav-signout" onClick={() => signOut({ redirectTo: '/' })}>
+        Sign out
+      </button>
+    </div>
+  )
+}
 
 export default function Nav() {
   const pathname = usePathname()
@@ -34,6 +70,7 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
+          <AccountControls />
         </div>
 
         {/* Mobile hamburger */}
@@ -61,6 +98,9 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
+          <div className="nav-mobile-account">
+            <AccountControls onNavigate={() => setOpen(false)} />
+          </div>
         </div>
       )}
     </nav>
