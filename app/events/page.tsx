@@ -31,7 +31,7 @@ const pastWebinars: {
 }[] = [
   {
     num: '01',
-    title: 'DevRel Strategy Room — Session 1',
+    title: 'Rethinking Developer Marketing, DevRel, and Trust in the AI Era',
     description:
       'An in-depth conversation on how AI is influencing the way companies connect with developers and how DevRel, developer education, and marketing teams can adapt.',
     embedUrl: 'https://www.youtube.com/embed/thTnBiZToKE',
@@ -39,11 +39,19 @@ const pastWebinars: {
   },
   {
     num: '02',
-    title: 'DevRel Strategy Room — Session 2',
+    title: 'Building Production-Ready Cloud Systems with AI (AWS, Azure, GCP) | Real-World Demo & Best Practices',
     description:
       'A deep dive into how AI is transforming the way developers and platform teams build, deploy, and operate production-grade cloud systems, from infrastructure provisioning to debugging and optimization.',
     embedUrl: 'https://www.youtube.com/embed/OvyBAJYrzw0',
     tags: ['AI', 'DevRel', 'Cloud'],
+  },
+  {
+    num: '03',
+    title: 'Turning Developer Education into Business Outcomes',
+    description:
+      "A fireside chat with Linda Ikechukwu on why developer education is more than documentation, tutorials, or a few YouTube videos — it's a strategic driver of product adoption, developer success, and long-term business growth. Linda shares how to build education programs that deliver measurable outcomes, followed by a live audience Q&A.",
+    embedUrl: 'https://www.youtube.com/embed/_NMKZfjQ1SU',
+    tags: ['Developer Education', 'DevRel', 'Adoption'],
   },
 ]
 

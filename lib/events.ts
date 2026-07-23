@@ -10,14 +10,6 @@ export type UpcomingEvent = {
 // both the Events page and the homepage highlight section.
 export const upcomingEvents: UpcomingEvent[] = [
   {
-    title: 'Turning Developer Education into Business Outcomes',
-    date: 'Friday, 17 July 2026',
-    speaker: 'Linda Ikechukwu',
-    description:
-      "Developer education does not end with documentation, tutorials, or a few YouTube videos; it's a strategic driver of product adoption, developer success, and long-term business growth. Join Linda for a fireside chat on building impactful education programs that deliver measurable outcomes, followed by a live audience Q&A.",
-    link: 'https://riverside.com/webinar/registration/eyJldmVudElkIjoiNmE0ZDEwMDNjMDg4MGE4ZWI4N2QyZTRjIiwic2x1ZyI6ImFuaXRhLWlodW1hbnMtc3R1ZGlvIn0=',
-  },
-  {
     title: 'Beyond the Resume: Building a Personal Brand That Opens Doors',
     date: 'Friday, 25 July 2026',
     speaker: 'Adora Nwodo',
