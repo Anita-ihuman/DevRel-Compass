@@ -48,8 +48,12 @@ export type Entitlement = {
   remaining: number
   /** When the current paid period ends (also when a cancellation takes effect). */
   periodEnd: string | null
-  /** Lemon Squeezy's hosted page for updating a card or cancelling. */
-  portalUrl: string | null
+  /**
+   * Lemon Squeezy subscription id, when there is one. Present means billing is
+   * manageable — link to /api/billing/portal, which mints a fresh portal URL.
+   * A comped account has a paid plan but no subscription, so nothing to manage.
+   */
+  subscriptionId: string | null
 }
 
 type UserBillingRow = {
@@ -57,7 +61,7 @@ type UserBillingRow = {
   plan_status: string | null
   current_period_end: Date | null
   monthly_quota: number | null
-  ls_portal_url: string | null
+  ls_subscription_id: string | null
   analyses_used: number | null
   period_start: Date | null
 }
@@ -74,7 +78,7 @@ function isWithinPaidPeriod(row: UserBillingRow): boolean {
 
 export async function getEntitlement(userId: string): Promise<Entitlement> {
   const { rows } = await pool.query(
-    `SELECT u.plan, u.plan_status, u.current_period_end, u.monthly_quota, u.ls_portal_url,
+    `SELECT u.plan, u.plan_status, u.current_period_end, u.monthly_quota, u.ls_subscription_id,
             g.analyses_used, g.period_start
        FROM users u LEFT JOIN usage g ON g."userId" = u.id
       WHERE u.id = $1`,
@@ -86,7 +90,7 @@ export async function getEntitlement(userId: string): Promise<Entitlement> {
     plan_status: null,
     current_period_end: null,
     monthly_quota: null,
-    ls_portal_url: null,
+    ls_subscription_id: null,
     analyses_used: 0,
     period_start: null,
   }
@@ -119,7 +123,7 @@ export async function getEntitlement(userId: string): Promise<Entitlement> {
     limit,
     remaining: Math.max(0, limit - used),
     periodEnd: row.current_period_end?.toISOString() ?? null,
-    portalUrl: row.ls_portal_url,
+    subscriptionId: row.ls_subscription_id ? String(row.ls_subscription_id) : null,
   }
 }
 

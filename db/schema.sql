@@ -137,6 +137,9 @@ CREATE TABLE IF NOT EXISTS newsletter_sends (
 -- against, so a cancelled subscription keeps working until the period runs out.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS ls_customer_id TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS ls_subscription_id TEXT;
+-- Recorded for reference only. Do NOT link to it: Lemon Squeezy signs portal
+-- URLs with a few hours' expiry, so a stored one is dead by the next time most
+-- customers click it. /api/billing/portal mints a fresh URL per request.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS ls_portal_url TEXT;
 -- Lemon Squeezy subscription status: active, on_trial, past_due, cancelled,
 -- unpaid, expired. NULL for accounts that never subscribed.
