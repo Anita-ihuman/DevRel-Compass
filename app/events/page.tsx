@@ -1,6 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { upcomingEvents } from '@/lib/events'
+import {
+  getPastSessions,
+  getUpcomingSessions,
+  formatSessionDate,
+  youtubeEmbedUrl,
+  currentSeasonNumber,
+} from '@/lib/events'
 
 const EVENTS_DESCRIPTION =
   'Live sessions exploring DevRel strategy, tool adoption psychology, and developer program design — from practitioners who have built in the trenches.'
@@ -19,35 +25,15 @@ export const metadata: Metadata = {
   },
 }
 
-// ── Past webinars ──────────────────────────────────────────────────────────
-// When you have the YouTube embed URLs, replace `embedUrl: null` with the URL.
-// YouTube embed format: https://www.youtube.com/embed/VIDEO_ID
-const pastWebinars: {
-  num: string
-  title: string
-  description: string
-  embedUrl: string | null
-  tags: string[]
-}[] = [
-  {
-    num: '01',
-    title: 'DevRel Strategy Room — Session 1',
-    description:
-      'An in-depth conversation on how AI is influencing the way companies connect with developers and how DevRel, developer education, and marketing teams can adapt.',
-    embedUrl: 'https://www.youtube.com/embed/thTnBiZToKE',
-    tags: ['AI', 'DevRel', 'Marketing'],
-  },
-  {
-    num: '02',
-    title: 'DevRel Strategy Room — Session 2',
-    description:
-      'A deep dive into how AI is transforming the way developers and platform teams build, deploy, and operate production-grade cloud systems, from infrastructure provisioning to debugging and optimization.',
-    embedUrl: 'https://www.youtube.com/embed/OvyBAJYrzw0',
-    tags: ['AI', 'DevRel', 'Cloud'],
-  },
-]
+// Sessions move from Upcoming to Past on their own once the date passes, so the
+// page has to be re-rendered periodically rather than frozen at build time.
+export const revalidate = 3600
 
 export default function EventsPage() {
+  const pastWebinars = getPastSessions()
+  const upcomingEvents = getUpcomingSessions()
+  const currentSeason = currentSeasonNumber()
+
   return (
     <div className="ev-root">
       <style>{`
@@ -109,7 +95,7 @@ export default function EventsPage() {
         {/* ── Hero ── */}
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="ev-pill" style={{ marginBottom: '1.25rem' }}>
-            Webinar Series · Season 2
+            Webinar Series · Season {currentSeason}
           </span>
 
           <h1
@@ -153,16 +139,16 @@ export default function EventsPage() {
               <div key={w.num} className="ev-card">
                 {/* Embed area */}
                 <div className="ev-embed">
-                  {w.embedUrl ? (
+                  {w.videoId ? (
                     <iframe
-                      src={w.embedUrl}
+                      src={youtubeEmbedUrl(w.videoId)}
                       title={w.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
                   ) : (
                     <div style={{ textAlign: 'center', color: 'var(--text3)' }}>
-                      <p style={{ fontSize: 13, margin: 0 }}>Video embed coming soon</p>
+                      <p style={{ fontSize: 13, margin: 0 }}>Recording coming soon</p>
                       <p style={{ fontFamily: 'var(--ff-m)', fontSize: 11, marginTop: 4 }}>
                         Session {w.num}
                       </p>
@@ -173,13 +159,19 @@ export default function EventsPage() {
                 {/* Info */}
                 <div style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: '.75rem' }}>
-                    {w.tags.map((tag) => (
+                    {w.date && <span className="ev-date">{formatSessionDate(w.date)}</span>}
+                    {w.tags?.map((tag) => (
                       <span key={tag} className="ev-tag">{tag}</span>
                     ))}
                   </div>
                   <h3 style={{ fontFamily: 'var(--ff-d)', fontSize: 17, fontWeight: 700, margin: '0 0 6px', color: 'var(--text)' }}>
                     {w.title}
                   </h3>
+                  {w.speaker && (
+                    <p style={{ fontFamily: 'var(--ff-m)', fontSize: 12, color: 'var(--accent)', margin: '0 0 .5rem' }}>
+                      with {w.speaker}
+                    </p>
+                  )}
                   <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.65, margin: 0 }}>
                     {w.description}
                   </p>
@@ -201,7 +193,9 @@ export default function EventsPage() {
             <div className="ev-grid">
               {upcomingEvents.map((e) => (
                 <div key={e.title} className="ev-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column' }}>
-                  <span className="ev-date" style={{ alignSelf: 'flex-start', marginBottom: '.75rem' }}>{e.date}</span>
+                  <span className="ev-date" style={{ alignSelf: 'flex-start', marginBottom: '.75rem' }}>
+                    {e.date ? formatSessionDate(e.date) : 'Date to be announced'}
+                  </span>
                   <h3 style={{ fontFamily: 'var(--ff-d)', fontSize: 16, fontWeight: 700, margin: '.75rem 0 6px', color: 'var(--text)' }}>
                     {e.title}
                   </h3>
@@ -241,7 +235,8 @@ export default function EventsPage() {
                 Next session being scheduled
               </h3>
               <p style={{ fontSize: 14, color: 'var(--text2)', maxWidth: 400, margin: '0 auto 1.25rem' }}>
-                Season 2 of the DevRel Strategy Room is in the works.
+                The next season of the DevRel Strategy Room is in the works. Catch up on
+                past sessions above in the meantime.
               </p>
               <Link href="/" className="ev-cta">Back to DevRel Compass →</Link>
             </div>

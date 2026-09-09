@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 }
 
+// The upcoming-webinars strip drops sessions once their date passes, so this
+// page can't be frozen at build time or it keeps advertising finished sessions.
+export const revalidate = 3600
+
 export default function HomePage() {
   return (
     <>

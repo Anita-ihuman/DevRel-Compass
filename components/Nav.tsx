@@ -6,10 +6,11 @@ import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 
 const NAV_LINKS = [
-  { href: '/',        label: 'Skills Analyzer' },
-  { href: '/roadmap', label: 'Career Roadmap'  },
-  { href: '/events',  label: 'Events'          },
-  { href: '/blog',    label: 'Blog'            },
+  { href: '/',           label: 'Skills Analyzer' },
+  { href: '/roadmap',    label: 'Career Roadmap'  },
+  { href: '/events',     label: 'Events'          },
+  { href: '/blog',       label: 'Blog'            },
+  { href: '/newsletter', label: 'Newsletter'      },
 ]
 
 function AccountControls({ onNavigate }: { onNavigate?: () => void }) {

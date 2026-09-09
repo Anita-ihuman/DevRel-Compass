@@ -20,6 +20,13 @@ export default function AnalyzerClient() {
   const [error, setError]     = useState('')
   const [signedIn, setSignedIn] = useState(false)
   const [remaining, setRemaining] = useState(0)
+  // Drives which paywall copy to show: a free user gets an upgrade offer, a
+  // subscriber who has used their month gets a reset date instead.
+  const [plan, setPlan] = useState<{ paid: boolean; limit: number; periodEnd: string | null }>({
+    paid: false,
+    limit: 0,
+    periodEnd: null,
+  })
 
   useEffect(() => {
     let active = true
@@ -29,6 +36,11 @@ export default function AnalyzerClient() {
         if (!active) return
         setSignedIn(Boolean(d.signedIn))
         setRemaining(d.remaining ?? 0)
+        setPlan({
+          paid: Boolean(d.paid),
+          limit: d.limit ?? 0,
+          periodEnd: d.periodEnd ?? null,
+        })
         setView((d.remaining ?? 0) <= 0 ? (d.signedIn ? 'limit' : 'signin') : 'upload')
       })
       .catch(() => active && setView('upload'))
@@ -100,7 +112,9 @@ export default function AnalyzerClient() {
 
   if (view === 'signin') return <SignInGate />
 
-  if (view === 'limit') return <LimitReached />
+  if (view === 'limit') {
+    return <LimitReached paid={plan.paid} limit={plan.limit} periodEnd={plan.periodEnd} />
+  }
 
   if (view === 'error') return (
     <div className="error-screen">

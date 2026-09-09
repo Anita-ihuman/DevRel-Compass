@@ -12,6 +12,8 @@ build/
 .env
 .env.local
 .env.*.local
+# copies and backups of a real env file (e.g. .env.local.bak-123)
+.env.local.*
 
 # debug
 npm-debug.log*

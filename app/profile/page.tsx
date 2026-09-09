@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/auth'
-import { getUserAnalyses, getAccountUsage, ACCOUNT_FREE_LIMIT, isPaidPlan } from '@/lib/usage'
+import { getUserAnalyses, getEntitlement } from '@/lib/usage'
+import UpgradeButton from '@/components/billing/UpgradeButton'
+import { PLAN } from '@/lib/plan'
 
 export const metadata: Metadata = {
   title: 'Your profile',
@@ -18,13 +20,13 @@ export default async function ProfilePage() {
   if (!session?.user) redirect('/signin')
   if (!session.user.username) redirect('/onboarding')
 
-  const paid = isPaidPlan(session.user.plan)
-  const [analyses, used] = await Promise.all([
-    // Only load history for paid users — it's a paid perk.
-    paid ? getUserAnalyses(session.user.id) : Promise.resolve([]),
-    getAccountUsage(session.user.id),
-  ])
-  const remaining = Math.max(0, ACCOUNT_FREE_LIMIT - used)
+  // The entitlement, not the session's cached plan, decides what's unlocked —
+  // it accounts for a subscription that has lapsed since the session was issued.
+  const entitlement = await getEntitlement(session.user.id)
+  const paid = entitlement.paid
+  // Only load history for paid users — it's a paid perk.
+  const analyses = paid ? await getUserAnalyses(session.user.id) : []
+  const { remaining } = entitlement
 
   return (
     <div className="profile-wrap">
@@ -36,9 +38,36 @@ export default async function ProfilePage() {
         </div>
       </header>
 
-      <p className="profile-quota">
-        {remaining} free {remaining === 1 ? 'analysis' : 'analyses'} remaining
-      </p>
+      <div className="profile-plan">
+        <div>
+          <p className="profile-quota">
+            {remaining} {paid ? '' : 'free '}
+            {remaining === 1 ? 'analysis' : 'analyses'} remaining
+            {paid && entitlement.periodEnd
+              ? ` · resets ${formatDate(entitlement.periodEnd)}`
+              : ''}
+          </p>
+          {paid && entitlement.status === 'cancelled' && entitlement.periodEnd && (
+            <p className="profile-plan-note">
+              Your subscription is cancelled and runs until {formatDate(entitlement.periodEnd)}.
+            </p>
+          )}
+          {paid && entitlement.status === 'past_due' && (
+            <p className="profile-plan-note">
+              Your last payment failed. Update your card to keep your plan active.
+            </p>
+          )}
+        </div>
+        {paid ? (
+          entitlement.portalUrl && (
+            <a className="profile-plan-link" href={entitlement.portalUrl}>
+              Manage billing →
+            </a>
+          )
+        ) : (
+          <UpgradeButton label={`Upgrade — ${PLAN.price}/${PLAN.interval}`} />
+        )}
+      </div>
 
       <h2 className="profile-section">Your analyses</h2>
 
@@ -47,9 +76,9 @@ export default async function ProfilePage() {
           <div className="profile-lock-icon">🔒</div>
           <h3 className="profile-lock-title">Saved history is a paid feature</h3>
           <p className="profile-lock-sub">
-            Upgrade to keep a saved history of every analysis and revisit them anytime.
-            Your past analyses are already saved — they&apos;ll appear here the moment you
-            upgrade. Paid plans are coming soon.
+            {PLAN.name} is {PLAN.price} a {PLAN.interval} — {PLAN.quota} analyses,
+            plus a saved history of every analysis you can revisit anytime. Your past
+            analyses are already saved; they&apos;ll appear here the moment you upgrade.
           </p>
         </div>
       ) : analyses.length === 0 ? (
