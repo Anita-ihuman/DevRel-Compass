@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "ls:ids": "node scripts/lemonsqueezy-ids.mjs",
+    "test:webhook": "node scripts/test-webhook.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

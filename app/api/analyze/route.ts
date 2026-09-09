@@ -7,14 +7,14 @@ import { getClientIp } from '@/lib/ip'
 import { auth } from '@/auth'
 import {
   ANON_FREE_LIMIT,
-  ACCOUNT_FREE_LIMIT,
-  getAccountUsage,
+  getEntitlement,
   incrementAccountUsage,
   getAnonUses,
   incrementAnonUses,
   saveAnalysis,
 } from '@/lib/usage'
 import { logAnalysisEvent } from '@/lib/metrics'
+import { tokenUsageFrom, type TokenUsage } from '@/lib/pricing'
 import type { AnalysisResult } from '@/types'
 
 // Resume analysis is a single long Claude call (up to 4096 tokens, longer for
@@ -103,10 +103,25 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req)
 
   if (userId) {
-    // Signed in: free analyses per account, then the paywall (M3).
-    if ((await getAccountUsage(userId)) >= ACCOUNT_FREE_LIMIT) {
+    // Signed in: the account's free allowance, or the subscription's monthly
+    // quota once they're paying. One helper decides which.
+    const entitlement = await getEntitlement(userId)
+    if (entitlement.remaining <= 0) {
+      const resets = entitlement.periodEnd
+        ? new Date(entitlement.periodEnd).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+          })
+        : null
       return NextResponse.json(
-        { error: "You've used your free analyses. Paid plans are coming soon.", requirePlan: true },
+        {
+          error: entitlement.paid
+            ? `You've used all ${entitlement.limit} analyses in this billing period${resets ? `. Your quota resets on ${resets}` : ''}.`
+            : "You've used your free analyses. Upgrade to keep analyzing.",
+          // Tells the client whether to offer an upgrade or just explain the wait.
+          requirePlan: !entitlement.paid,
+          quotaExhausted: entitlement.paid,
+        },
         { status: 402 },
       )
     }
@@ -145,6 +160,8 @@ export async function POST(req: NextRequest) {
       : `RESUME:\n\n${resumeData.content}\n\n${userText}`
 
   let raw: string
+  // Captured from the Claude response so every analysis records what it cost.
+  let usage: TokenUsage | undefined
   try {
     const message = await client.messages.create({
       // Sonnet 5: stable, reliable, and markedly faster than Opus for this
@@ -163,6 +180,7 @@ export async function POST(req: NextRequest) {
     if (!textBlock) {
       throw new Error('Claude returned no text content.')
     }
+    usage = tokenUsageFrom(message.usage)
     raw = textBlock.text.trim()
   } catch (e) {
     const detail = e instanceof Error ? e.message : 'Claude API call failed.'
@@ -199,7 +217,7 @@ export async function POST(req: NextRequest) {
     } else {
       await incrementAnonUses(ip)
     }
-    await logAnalysisEvent(userId)
+    await logAnalysisEvent(userId, usage)
   } catch (e) {
     console.error('Analyze: usage/history bookkeeping failed:', e instanceof Error ? e.message : e)
   }

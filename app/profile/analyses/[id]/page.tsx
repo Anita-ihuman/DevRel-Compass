@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/auth'
-import { getAnalysisById, isPaidPlan } from '@/lib/usage'
+import { getAnalysisById, getEntitlement } from '@/lib/usage'
 import AnalysisView from '@/components/analyzer/AnalysisView'
 
 export const metadata: Metadata = {
@@ -17,8 +17,11 @@ export default async function AnalysisDetailPage({
 }) {
   const session = await auth()
   if (!session?.user) redirect('/signin')
-  // Viewing saved analyses is a paid perk — send free users back to the profile.
-  if (!isPaidPlan(session.user.plan)) redirect('/profile')
+  // Viewing saved analyses is a paid perk. Check the entitlement rather than the
+  // session's cached plan, so a subscription that has run out actually locks up
+  // — the session can outlive the billing period it was issued under.
+  const { paid } = await getEntitlement(session.user.id)
+  if (!paid) redirect('/profile')
 
   const { id } = await params
   const row = await getAnalysisById(session.user.id, id)

@@ -1,13 +1,15 @@
 import Link from 'next/link'
-import { upcomingEvents } from '@/lib/events'
+import { getUpcomingSessions, formatSessionDate } from '@/lib/events'
 
 // Landing-page highlight of the next few webinars. Renders nothing when there
-// are no upcoming events, so it never shows an empty block.
+// are no upcoming events, so it never shows an empty block — and sessions drop
+// off on their own once their date passes (the page revalidates hourly).
 export default function HomeUpcomingEvents() {
-  if (upcomingEvents.length === 0) return null
+  const upcoming = getUpcomingSessions()
+  if (upcoming.length === 0) return null
 
   // Show at most the next 3 on the homepage; the Events page has the full list.
-  const events = upcomingEvents.slice(0, 3)
+  const events = upcoming.slice(0, 3)
 
   return (
     <section className="home-events">
@@ -25,7 +27,9 @@ export default function HomeUpcomingEvents() {
         <div className="home-events-grid">
           {events.map((e) => (
             <div key={e.title} className="home-event-card">
-              <span className="home-event-date">{e.date}</span>
+              <span className="home-event-date">
+                {e.date ? formatSessionDate(e.date) : 'Date to be announced'}
+              </span>
               <h3 className="home-event-title">{e.title}</h3>
               {e.speaker && <p className="home-event-speaker">with {e.speaker}</p>}
               {e.link && (
