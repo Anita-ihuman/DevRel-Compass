@@ -67,6 +67,35 @@ export async function createCheckout({
 }
 
 /**
+ * Fetch a freshly-signed customer portal URL for a subscription.
+ *
+ * These URLs carry `expires` and `signature` query parameters and are only
+ * valid for a few hours, so one cannot be stored at webhook time and reused —
+ * it would be dead by the time most customers clicked it. Mint a new one per
+ * click instead; that is what this is for.
+ */
+export async function getCustomerPortalUrl(subscriptionId: string): Promise<string | null> {
+  const apiKey = process.env.LEMONSQUEEZY_API_KEY
+  if (!apiKey) throw new Error('LEMONSQUEEZY_API_KEY is not configured.')
+
+  const res = await fetch(`${API_BASE}/subscriptions/${subscriptionId}`, {
+    headers: {
+      Accept: 'application/vnd.api+json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    // The response is signed and time-limited, so it must never be cached.
+    cache: 'no-store',
+  })
+
+  if (!res.ok) {
+    throw new Error(`Lemon Squeezy subscription lookup failed (${res.status}): ${await res.text()}`)
+  }
+
+  const json = await res.json()
+  return json?.data?.attributes?.urls?.customer_portal ?? null
+}
+
+/**
  * Verify a Lemon Squeezy webhook. The `X-Signature` header is an HMAC-SHA256
  * hex digest of the raw request body, keyed with your webhook signing secret.
  */

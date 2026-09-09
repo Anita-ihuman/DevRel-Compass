@@ -1092,3 +1092,9 @@ a { text-decoration: none; color: inherit; }
 .admin-nl-title { font-family: var(--ff-d); font-weight: 600; font-size: 15px; color: var(--text); }
 .admin-nl-meta { font-family: var(--ff-m); font-size: 12px; color: var(--text3); margin-top: 4px; }
 .admin-nl-send { flex-shrink: 0; }
+
+/* Plan name sits above the quota pill in the billing card. */
+.profile-plan-name {
+  font-family: var(--ff-d); font-size: 15px; font-weight: 700;
+  color: var(--text); margin: 0 0 .6rem;
+}
