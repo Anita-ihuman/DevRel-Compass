@@ -19,7 +19,7 @@ export default function Footer() {
             <div className="footer-col-title">Features</div>
             <Link href="/"        className="footer-link">Skills Analyzer</Link>
             <Link href="/roadmap" className="footer-link">Career Roadmap</Link>
-            <Link href="/library" className="footer-link">DevRel Library</Link>
+            <Link href="/library" className="footer-link">DevRel Playbook</Link>
             <Link href="/events"  className="footer-link">Events</Link>
           </div>
 

@@ -10,10 +10,10 @@ const DESCRIPTION =
   'How do I get into DevRel? Every lesson in the DevRel career roadmap in one place — five phases, from what DevRel is to leading a DevRel team.'
 
 export const metadata: Metadata = {
-  title: 'DevRel Library — How do I get into DevRel?',
+  title: 'DevRel Playbook — How do I get into DevRel?',
   description: DESCRIPTION,
   alternates: { canonical: '/library' },
-  openGraph: { type: 'website', url: '/library', title: 'DevRel Library — How do I get into DevRel?', description: DESCRIPTION },
+  openGraph: { type: 'website', url: '/library', title: 'DevRel Playbook — How do I get into DevRel?', description: DESCRIPTION },
 }
 
 // Every roadmap phase with its lesson, in order. The build already guarantees
@@ -28,7 +28,7 @@ export default function DevRelLibraryPage() {
     <div className="ls-page">
       <div className="ls-wrap ls-wrap--wide">
         <header className="ls-hero">
-          <div className="hero-badge">DevRel Library</div>
+          <div className="hero-badge">DevRel Playbook</div>
           <h1 className="ls-title">
             How do I get <span className="hero-accent">into DevRel?</span>
           </h1>

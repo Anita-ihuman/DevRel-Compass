@@ -167,7 +167,7 @@ export default async function PhaseLessonPage({ params }: { params: Promise<{ ph
           ) : (
             <Link href="/library" className="ls-pager-link ls-pager-link--next">
               <span className="ls-pager-dir">Keep learning →</span>
-              <span className="ls-pager-title">DevRel Library</span>
+              <span className="ls-pager-title">DevRel Playbook</span>
             </Link>
           )}
         </nav>

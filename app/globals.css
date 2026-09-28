@@ -1014,7 +1014,7 @@ a { text-decoration: none; color: inherit; }
   color: var(--text); margin: 0 0 .6rem;
 }
 
-/* ═══ Lessons & DevRel Library ═══════════════════════════════════════════════ */
+/* ═══ Lessons & DevRel Playbook ═════════════════════════════════════════════ */
 .ls-page { padding: 2.5rem 1rem 5rem; }
 .ls-wrap { max-width: 860px; margin: 0 auto; }
 .ls-wrap--wide { max-width: 1120px; }
@@ -1162,7 +1162,7 @@ a { text-decoration: none; color: inherit; }
 .ls-pager-dir { font-family: var(--ff-m); font-size: .7rem; color: var(--text3); }
 .ls-pager-title { font-family: var(--ff-d); font-weight: 600; color: var(--text); }
 
-/* DevRel Library (app/library/page.tsx) */
+/* DevRel Playbook (app/library/page.tsx) */
 .lib-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 2.5rem; align-items: start; margin-top: 1rem; }
 .lib-nav { position: sticky; top: 85px; }
 .lib-nav-title { font-family: var(--ff-m); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: .6rem; }

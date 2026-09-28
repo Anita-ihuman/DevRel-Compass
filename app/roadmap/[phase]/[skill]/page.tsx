@@ -208,7 +208,7 @@ export default async function SkillModulePage({ params }: { params: Params }) {
               ) : (
                 <Link href="/library" className="ls-pager-link ls-pager-link--next">
                   <span className="ls-pager-dir">You finished the roadmap →</span>
-                  <span className="ls-pager-title">Back to the DevRel Library</span>
+                  <span className="ls-pager-title">Back to the DevRel Playbook</span>
                 </Link>
               )}
             </nav>
