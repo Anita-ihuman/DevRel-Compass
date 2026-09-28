@@ -28,8 +28,8 @@ Pay for more  →  monthly plan / additional analyses
 
 - **Cost safety first.** Nothing that increases traffic ships before spend is
   enforced server-side.
-- **Merchant of Record.** Lemon Squeezy handles checkout, subscriptions, global
-  tax/VAT, and payment PII — we store only what the app needs.
+- **Merchant of Record.** A payment provider (to be chosen) handles checkout,
+  subscriptions, global tax/VAT, and payment PII — we store only what the app needs.
 - **Store the minimum.** Email, username, subscription + usage state. Nothing
   more until a feature needs it.
 
@@ -83,17 +83,19 @@ Gate the flow: 1 free anonymous → sign up → 2 more free.
 - Anonymous free (1) keyed to IP/fingerprint; post-signup free (2) keyed to the
   account.
 
-## M3 — Payments via Lemon Squeezy 💳
+## M3 — Payments 💳
 
-Turn accounts into paying customers once the 3 free analyses are used.
+Turn accounts into paying customers once the 3 free analyses are used. The
+plan, quota and entitlement logic exist; the payment provider is not yet chosen
+(the upgrade button shows "coming soon").
 
-- Product + monthly plan in **Lemon Squeezy**; embed hosted checkout.
-- **Webhooks** (`subscription_created/updated/cancelled`,
-  `subscription_payment_success/failed`) sync status to `users`: plan, status,
-  `current_period_end`, monthly quota.
+- Product + monthly plan in the chosen provider; embed hosted checkout.
+- **Webhooks** (subscription created/updated/cancelled, payment
+  success/failed) sync status to `users`: plan, status, `current_period_end`,
+  monthly quota.
 - Enforce the **monthly quota** server-side in `/api/analyze` (reuse the M1
   layer), reset each billing period.
-- Lemon Squeezy **customer portal** for manage/cancel/update-card.
+- Provider **customer portal** for manage/cancel/update-card.
 - Edge cases: failed payment → grace then downgrade; cancel → access until
   `current_period_end`.
 - **Price against cost:** measure Anthropic cost per analysis × monthly quota so

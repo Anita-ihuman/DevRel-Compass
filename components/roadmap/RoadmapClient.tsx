@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { CAREER_STAGES, ENTRY_PATHS, SKILLS } from '@/lib/constants'
+import { CAREER_STAGES, SKILLS } from '@/lib/constants'
 import { getScoreColor, getScoreLabel } from '@/lib/utils'
 import type { CareerStage } from '@/lib/constants'
-import RoadmapFlow from './RoadmapFlow'
+import CareerPathSection from './CareerPathSection'
 
 // ─── Mini skill bar for roadmap stage cards ───────────────────────────────────
 
@@ -59,9 +59,8 @@ function StageCard({ stage, isOpen, onToggle, index }: {
           <div className="stage-body">
             <p className="stage-desc">{stage.description}</p>
 
-            <div className="stage-grid">
-              {/* Skill Profile */}
-              <div className="stage-section">
+            {/* Skill Profile */}
+            <div className="stage-section">
                 <div className="stage-section-title">Expected Skill Profile</div>
                 <div className="stage-skills">
                   {SKILLS.map(skill => {
@@ -78,33 +77,11 @@ function StageCard({ stage, isOpen, onToggle, index }: {
                     )
                   })}
                 </div>
-              </div>
+            </div>
 
-              {/* Milestones + Activities */}
-              <div className="stage-section">
-                <div className="stage-section-title">Key Milestones</div>
-                <ul className="stage-list">
-                  {stage.milestones.map((m, i) => (
-                    <li key={i} className="stage-list-item" style={{ '--dot-color': stage.color } as React.CSSProperties}>
-                      {m}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="stage-section-title" style={{ marginTop: '1.25rem' }}>Typical Activities</div>
-                <ul className="stage-list">
-                  {stage.activities.map((a, i) => (
-                    <li key={i} className="stage-list-item stage-list-item--dim" style={{ '--dot-color': stage.color } as React.CSSProperties}>
-                      {a}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="stage-companies">
-                  <span className="stage-companies-label">Where you&apos;ll find this role:</span>
-                  {stage.companies}
-                </div>
-              </div>
+            <div className="stage-companies">
+              <span className="stage-companies-label">Where you&apos;ll find this role:</span>
+              {stage.companies}
             </div>
 
             <div className="stage-cta">
@@ -123,93 +100,16 @@ function StageCard({ stage, isOpen, onToggle, index }: {
 
 export default function RoadmapClient() {
   const [openStage, setOpenStage] = useState<string | null>('junior')
-  const [openEntry, setOpenEntry] = useState<number | null>(null)
 
   function toggleStage(id: string) {
     setOpenStage(prev => (prev === id ? null : id))
   }
 
-  function toggleEntry(i: number) {
-    setOpenEntry(prev => (prev === i ? null : i))
-  }
-
   return (
     <div className="roadmap-page">
 
-      {/* Hero */}
-      <section className="roadmap-hero">
-        <div className="roadmap-hero-inner">
-          <div className="hero-badge">DevRel Compass</div>
-          <h1 className="roadmap-hero-title">
-            Your Path<br />
-            <span className="hero-accent">into DevRel</span>
-          </h1>
-          <p className="roadmap-hero-sub">
-            A complete, step-by-step career map for anyone breaking into or growing in
-            Developer Relations — covering every skill, milestone, and transition point
-            from first principles to leadership. Start from any background, at any level.
-          </p>
-          <div className="roadmap-hero-stats">
-            <div className="hero-stat">
-              <span className="hero-stat-num">5</span>
-              <span className="hero-stat-label">Entry Paths</span>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat">
-              <span className="hero-stat-num">5</span>
-              <span className="hero-stat-label">Career Stages</span>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat">
-              <span className="hero-stat-num">1</span>
-              <span className="hero-stat-label">Path to DevRel</span>
-            </div>
-          </div>
-          <Link href="/" className="roadmap-hero-cta">
-            Analyze Your Profile
-            <span>→</span>
-          </Link>
-        </div>
-      </section>
-
-      {/* Entry Paths */}
-      <section className="roadmap-section">
-        <div className="roadmap-section-inner">
-          <div className="section-header">
-            <h2 className="section-title">Where DevRel Practitioners Come From</h2>
-            <p className="section-sub">
-              DevRel is one of the most interdisciplinary roles in tech. People arrive
-              from five main backgrounds — each with different strengths and gaps to close.
-            </p>
-          </div>
-
-          <div className="entry-grid">
-            {ENTRY_PATHS.map((path, i) => (
-              <div key={i} className={`entry-card${openEntry === i ? ' entry-card--open' : ''}`}>
-                <button className="entry-header" onClick={() => toggleEntry(i)}>
-                  <span className="entry-icon">{path.icon}</span>
-                  <div className="entry-header-info">
-                    <div className="entry-from">From {path.from}</div>
-                    <div className="entry-timeline">{path.timeline}</div>
-                  </div>
-                  <div className={`entry-chevron${openEntry === i ? ' entry-chevron--open' : ''}`}>›</div>
-                </button>
-                {openEntry === i && (
-                  <div className="entry-body">
-                    <p className="entry-desc">{path.description}</p>
-                    <div className="entry-bridge-label">Skills to bridge:</div>
-                    <div className="entry-bridge-tags">
-                      {path.bridgeSkills.map((s, j) => (
-                        <span key={j} className="bridge-tag">{s}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Career map — a compass travels the path; every pin and topic links to its lesson */}
+      <CareerPathSection />
 
       {/* Career Stages */}
       <section className="roadmap-section roadmap-section--dark">
@@ -217,8 +117,8 @@ export default function RoadmapClient() {
           <div className="section-header">
             <h2 className="section-title">The 5 Career Stages</h2>
             <p className="section-sub">
-              Click each stage to see the expected skill profile, key milestones,
-              and the activities that define the role. Scores reflect the typical range
+              Click each stage to see the expected skill profile and where the role
+              is typically found. Scores reflect the typical range
               for practitioners at that level based on real hiring signals.
             </p>
           </div>
@@ -236,9 +136,6 @@ export default function RoadmapClient() {
           </div>
         </div>
       </section>
-
-      {/* Comprehensive step-by-step roadmap */}
-      <RoadmapFlow />
 
       {/* CTA */}
       <section className="roadmap-cta-section">

@@ -2,16 +2,23 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 
 const NAV_LINKS = [
   { href: '/',           label: 'Skills Analyzer' },
   { href: '/roadmap',    label: 'Career Roadmap'  },
+  { href: '/library',    label: 'DevRel Library'  },
   { href: '/events',     label: 'Events'          },
   { href: '/blog',       label: 'Blog'            },
   { href: '/newsletter', label: 'Newsletter'      },
 ]
+
+// Lesson pages live under /roadmap/*, so match sections by prefix (except home).
+function isActive(pathname: string, href: string): boolean {
+  return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`)
+}
 
 function AccountControls({ onNavigate }: { onNavigate?: () => void }) {
   const { data: session, status } = useSession()
@@ -55,9 +62,8 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <Link href="/" className="nav-logo">
-          <span className="nav-logo-mark">◈</span>
-          <span className="nav-logo-name">DevRel Compass</span>
+        <Link href="/" className="nav-logo" aria-label="DevRel Compass home">
+          <Image src="/logo-text.svg" alt="DevRel Compass" width={312} height={106} priority className="nav-logo-img" />
         </Link>
 
         {/* Desktop links */}
@@ -66,7 +72,7 @@ export default function Nav() {
             <Link
               key={link.href}
               href={link.href}
-              className={`nav-link${pathname === link.href ? ' nav-link--active' : ''}`}
+              className={`nav-link${isActive(pathname, link.href) ? ' nav-link--active' : ''}`}
             >
               {link.label}
             </Link>

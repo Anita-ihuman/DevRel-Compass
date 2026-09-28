@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   image TEXT,
   -- App-specific: chosen at onboarding, unique across the site.
   username VARCHAR(50) UNIQUE,
-  -- Billing plan. 'free' by default; M3 (Lemon Squeezy) flips this to a paid
-  -- tier via webhooks. Saved history is unlocked for non-free plans.
+  -- Billing plan. 'free' by default; any other value is a paid tier. Saved
+  -- history is unlocked for non-free plans.
   plan TEXT NOT NULL DEFAULT 'free',
   "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -131,20 +131,12 @@ CREATE TABLE IF NOT EXISTS newsletter_sends (
   sent_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ── Subscriptions (M3): Lemon Squeezy is the merchant of record ─────────────
--- We store only what gating needs — no card data, no billing address. Webhooks
--- keep these in sync; `current_period_end` is the single field access is judged
--- against, so a cancelled subscription keeps working until the period runs out.
-ALTER TABLE users ADD COLUMN IF NOT EXISTS ls_customer_id TEXT;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS ls_subscription_id TEXT;
--- Recorded for reference only. Do NOT link to it: Lemon Squeezy signs portal
--- URLs with a few hours' expiry, so a stored one is dead by the next time most
--- customers click it. /api/billing/portal mints a fresh URL per request.
-ALTER TABLE users ADD COLUMN IF NOT EXISTS ls_portal_url TEXT;
--- Lemon Squeezy subscription status: active, on_trial, past_due, cancelled,
--- unpaid, expired. NULL for accounts that never subscribed.
+-- ── Subscriptions ───────────────────────────────────────────────────────────
+-- We store only what gating needs — no card data, no billing address.
+-- `current_period_end` is the single field access is judged against, so a
+-- cancelled subscription keeps working until the period runs out.
+-- Subscription status: active, on_trial, past_due, cancelled, unpaid, expired.
+-- NULL for accounts that never subscribed.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_status TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS current_period_end TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS monthly_quota INTEGER;
-CREATE UNIQUE INDEX IF NOT EXISTS users_ls_subscription_idx
-  ON users (ls_subscription_id) WHERE ls_subscription_id IS NOT NULL;

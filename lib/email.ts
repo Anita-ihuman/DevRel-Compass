@@ -1,8 +1,7 @@
 // Transactional + newsletter sending via Resend's REST API.
 //
 // Called directly over fetch rather than through the Resend SDK, so the app
-// keeps one less dependency — the same approach lib/lemonsqueezy.ts takes. The
-// API key is the one already used for magic-link sign-in (AUTH_RESEND_KEY).
+// keeps one less dependency. The API key is the one already used for magic-link sign-in (AUTH_RESEND_KEY).
 
 const API_BASE = 'https://api.resend.com'
 

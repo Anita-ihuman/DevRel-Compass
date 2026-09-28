@@ -132,8 +132,6 @@ export interface CareerStage {
   description: string
   color: string
   skills: Partial<DevRelSkills>
-  milestones: string[]
-  activities: string[]
   companies: string
 }
 
@@ -158,18 +156,6 @@ export const CAREER_STAGES: CareerStage[] = [
       dataAndMeasurement: 20,
       aiFluency: 22,
     },
-    milestones: [
-      'Publish your first technical tutorial or blog post',
-      'Give your first talk at a meetup or small conference',
-      'Contribute to or help moderate a community channel',
-      'Complete a meaningful open source contribution',
-    ],
-    activities: [
-      'Writing getting-started guides and code samples',
-      'Attending and helping at developer events',
-      'Responding to community questions on Discord/Slack/GitHub',
-      'Shadowing senior DevRel on demo builds and talks',
-    ],
     companies: 'Startups, scale-ups with small DevRel teams',
   },
   {
@@ -192,18 +178,6 @@ export const CAREER_STAGES: CareerStage[] = [
       dataAndMeasurement: 45,
       aiFluency: 40,
     },
-    milestones: [
-      'Accepted to and delivered a talk at a major conference (KubeCon, DevRelCon, etc.)',
-      'Grew or managed a developer community with trackable health metrics',
-      'Shipped a DX improvement that reached engineering or product',
-      'Built a content series with measurable reach or engagement',
-    ],
-    activities: [
-      'Owning an event presence end-to-end',
-      'Managing community health dashboards and onboarding pipelines',
-      'Running developer surveys and synthesizing findings for product',
-      'Writing and maintaining SDK documentation or tutorials',
-    ],
     companies: 'Growth-stage startups, mid-size tech, cloud vendors',
   },
   {
@@ -226,18 +200,6 @@ export const CAREER_STAGES: CareerStage[] = [
       dataAndMeasurement: 64,
       aiFluency: 58,
     },
-    milestones: [
-      'Demonstrated measurable business impact from a DevRel program',
-      'Mentored junior or mid-level DevRel practitioners',
-      'Influenced product roadmap decisions through developer insight',
-      'Known speaker or contributor in a technical community',
-    ],
-    activities: [
-      'Defining DevRel program strategy and OKRs',
-      'Running developer advisory boards or feedback councils',
-      'Leading cross-functional DevRel initiatives with product and engineering',
-      'Speaking at tier-1 conferences and building industry relationships',
-    ],
     companies: 'Enterprise tech, major cloud providers, developer tools unicorns',
   },
   {
@@ -260,18 +222,6 @@ export const CAREER_STAGES: CareerStage[] = [
       dataAndMeasurement: 76,
       aiFluency: 72,
     },
-    milestones: [
-      'Delivered a keynote or mainstage talk at a flagship industry event',
-      'Published research, a framework, or a report the community references',
-      'Built a program that is considered a benchmark in the industry',
-      'Defined DevRel strategy at the organizational or platform level',
-    ],
-    activities: [
-      'Representing the company at the highest-profile industry events',
-      'Defining and publishing DevRel measurement frameworks',
-      'Advising product teams on developer ecosystem strategy',
-      'Writing thought leadership that shapes the broader DevRel conversation',
-    ],
     companies: 'FAANG, top-tier developer platforms, open source foundations',
   },
   {
@@ -294,18 +244,6 @@ export const CAREER_STAGES: CareerStage[] = [
       dataAndMeasurement: 82,
       aiFluency: 75,
     },
-    milestones: [
-      'Built, hired, and scaled a DevRel team from scratch or at inflection',
-      'Defined and owned the developer strategy for an organization',
-      'Secured exec-level buy-in and budget for a developer program',
-      'Grown a developer ecosystem measurably over multiple years',
-    ],
-    activities: [
-      'Hiring, mentoring, and developing DevRel talent',
-      'Operating as the executive voice for developer community',
-      'Building partnerships with foundations, platforms, and communities',
-      'Reporting developer ecosystem health to C-suite and board',
-    ],
     companies: 'Director+ at major platforms, VP/Head of DevRel, founding DevRel at unicorns',
   },
 ]

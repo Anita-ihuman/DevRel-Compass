@@ -18,6 +18,8 @@ export interface RoadmapPhase {
   title: string
   color: string
   description: string
+  /** The career stage this phase prepares you for — shown on the roadmap tree. */
+  prepares: string
   layout?: 'single' | 'grid'
   groups: RoadmapGroup[]
 }
@@ -25,6 +27,7 @@ export interface RoadmapPhase {
 export const ROADMAP_PHASES: RoadmapPhase[] = [
   {
     id: 'foundation',
+    prepares: 'Getting in: aspiring → Junior DevRel',
     phase: '01',
     title: 'Foundation',
     color: '#8b5cf6',
@@ -38,7 +41,8 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
         icon: '◎',
         topics: [
           { title: 'History & Evolution of DevRel', desc: 'How the role emerged from engineering and marketing, key milestones from Sun Microsystems to CNCF.' },
-          { title: 'Types of DevRel Roles', desc: 'Developer Advocate, Community Manager, DX Engineer, Technical Writer, DevRel Lead — and how they differ.' },
+          { title: 'Types of DevRel Roles', desc: 'Developer Advocate, Developer Relations, Developer Education, Technical Writer, Developer Marketing, Community Manager and Developer Experience — what each job involves, how it is measured and how they differ.' },
+          { title: 'Where DevRel Practitioners Come From', desc: 'The five common backgrounds people move into DevRel from, the strengths each brings, and the gaps to close.' },
           { title: 'Importance of DevRel', desc: 'Why organizations invest in DevRel and how it drives developer adoption, retention, and product feedback.' },
           { title: 'The DevRel Mindset', desc: 'Community-first thinking, long-term relationship building, and authentic representation.' },
           { title: 'DevRel vs Developer Marketing', desc: 'Understanding the overlap, the distinctions, and how they work together effectively.' },
@@ -62,6 +66,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
   },
   {
     id: 'four-pillars',
+    prepares: 'Junior DevRel',
     phase: '02',
     title: 'The Four Core Pillars',
     color: '#2dd4bf',
@@ -142,6 +147,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
   },
   {
     id: 'visibility',
+    prepares: 'Mid-Level DevRel',
     phase: '03',
     title: 'Visibility & Growth',
     color: '#22c55e',
@@ -183,6 +189,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
   },
   {
     id: 'open-source',
+    prepares: 'Mid-Level → Senior DevRel',
     phase: '04',
     title: 'Open Source',
     color: '#f59e0b',
@@ -210,6 +217,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
   },
   {
     id: 'advanced',
+    prepares: 'Senior, Staff & DevRel Leader',
     phase: '05',
     title: 'Advanced DevRel',
     color: '#ef4444',

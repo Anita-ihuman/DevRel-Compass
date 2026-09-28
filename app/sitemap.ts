@@ -2,12 +2,14 @@ import type { MetadataRoute } from 'next'
 import { siteUrl } from '@/lib/site'
 import { getAllPosts } from '@/lib/blog'
 import { getAllIssues } from '@/lib/newsletter'
+import { ROADMAP_PHASES } from '@/lib/roadmap-data'
+import { allModuleRefs, moduleHref } from '@/lib/lessons'
 
 // Generated at /sitemap.xml — lists every indexable route (static pages, blog
 // posts, newsletter issues) so search engines can discover and crawl the whole
 // site. Draft issues are excluded: getAllIssues already filters them out.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ['', '/roadmap', '/events', '/blog', '/newsletter'].map((path) => ({
+  const staticRoutes = ['', '/roadmap', '/library', '/events', '/blog', '/newsletter'].map((path) => ({
     url: `${siteUrl}${path}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
@@ -28,5 +30,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...staticRoutes, ...postRoutes, ...issueRoutes]
+  const lessonRoutes = [
+    ...ROADMAP_PHASES.map((p) => `/roadmap/${p.id}`),
+    ...allModuleRefs().map(({ phase, group }) => moduleHref(phase.id, group.id)),
+  ].map((path) => ({
+    url: `${siteUrl}${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticRoutes, ...lessonRoutes, ...postRoutes, ...issueRoutes]
 }

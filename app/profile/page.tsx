@@ -15,23 +15,10 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-// Feedback from the billing-portal round trip and the post-checkout redirect.
-const BILLING_BANNERS: Record<string, string> = {
-  none: "There's no subscription to manage on this account yet.",
-  error: "We couldn't open the billing portal just now. Please try again in a moment.",
-}
-
-export default async function ProfilePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ billing?: string; upgraded?: string }>
-}) {
+export default async function ProfilePage() {
   const session = await auth()
   if (!session?.user) redirect('/signin')
   if (!session.user.username) redirect('/onboarding')
-
-  const params = await searchParams
-  const billingNotice = params.billing ? BILLING_BANNERS[params.billing] : undefined
 
   // The entitlement, not the session's cached plan, decides what's unlocked —
   // it accounts for a subscription that has lapsed since the session was issued.
@@ -51,21 +38,10 @@ export default async function ProfilePage({
         </div>
       </header>
 
-      {params.upgraded && paid && (
-        <div className="nl-banner nl-banner--ok" role="status">
-          You&apos;re on {PLAN.name}. Your saved history is unlocked and your monthly
-          allowance is available below.
-        </div>
-      )}
-      {billingNotice && (
-        <div className="nl-banner nl-banner--warn" role="status">{billingNotice}</div>
-      )}
-
       <div className="profile-plan">
         <div>
           <p className="profile-plan-name">
             {paid ? PLAN.name : 'Free'} plan
-            {paid && !entitlement.subscriptionId ? ' · complimentary' : ''}
           </p>
           <p className="profile-quota">
             {remaining} {paid ? '' : 'free '}
@@ -79,24 +55,8 @@ export default async function ProfilePage({
               Your subscription is cancelled and runs until {formatDate(entitlement.periodEnd)}.
             </p>
           )}
-          {paid && entitlement.status === 'past_due' && (
-            <p className="profile-plan-note">
-              Your last payment failed. Update your card to keep your plan active.
-            </p>
-          )}
         </div>
-        {paid ? (
-          // Only a real Lemon Squeezy subscription has anything to manage. A
-          // comped account is paid but has no subscription, so there is no
-          // portal to send it to.
-          entitlement.subscriptionId && (
-            <a className="profile-plan-link" href="/api/billing/portal">
-              Manage billing →
-            </a>
-          )
-        ) : (
-          <UpgradeButton label={`Upgrade — ${PLAN.price}/${PLAN.interval}`} />
-        )}
+        {!paid && <UpgradeButton />}
       </div>
 
       <h2 className="profile-section">Your analyses</h2>
@@ -106,9 +66,9 @@ export default async function ProfilePage({
           <div className="profile-lock-icon">🔒</div>
           <h3 className="profile-lock-title">Saved history is a paid feature</h3>
           <p className="profile-lock-sub">
-            {PLAN.name} is {PLAN.price} a {PLAN.interval} — {PLAN.quota} analyses,
-            plus a saved history of every analysis you can revisit anytime. Your past
-            analyses are already saved; they&apos;ll appear here the moment you upgrade.
+            {PLAN.name} is coming soon — {PLAN.quota} analyses a {PLAN.interval}, plus a
+            saved history of every analysis you can revisit anytime. Your past analyses
+            are already saved; they&apos;ll appear here once you&apos;re on {PLAN.name}.
           </p>
         </div>
       ) : analyses.length === 0 ? (

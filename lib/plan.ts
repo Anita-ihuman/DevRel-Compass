@@ -1,12 +1,11 @@
 // The paid plan, in one place.
 //
-// Price and quota are decided values, not configuration — the checkout price
-// lives in the Lemon Squeezy variant, and these have to agree with it. Keeping
-// them here (rather than in env vars) means the marketing copy, the quota the
-// server enforces, and the admin cost projection can never drift apart.
+// Price and quota are decided values, not configuration. Keeping them here
+// (rather than in env vars) means the marketing copy, the quota the server
+// enforces, and the admin cost projection can never drift apart.
 //
-// Changing the price means changing it in BOTH places: the Lemon Squeezy
-// variant is what actually charges the customer.
+// No payment provider is wired up yet. When one is added, its product price
+// has to match `price` here.
 export const PLAN = {
   /** Label stored in users.plan. Anything other than 'free' counts as paid. */
   id: 'pro',

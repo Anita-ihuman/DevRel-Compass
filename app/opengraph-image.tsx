@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { logoLockup } from '@/lib/brand'
 
 // Branded social-share card shown when a DevRel Compass link is posted to
 // Slack, X/Twitter, LinkedIn, WhatsApp, Discord, iMessage, etc.
@@ -22,21 +23,9 @@ export default function OpengraphImage() {
           fontFamily: 'sans-serif',
         }}
       >
-        {/* Logo lockup: diamond mark + wordmark */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <div
-            style={{
-              width: 78,
-              height: 78,
-              borderRadius: 18,
-              transform: 'rotate(45deg)',
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #2dd4bf 100%)',
-            }}
-          />
-          <div style={{ display: 'flex', fontSize: 88, fontWeight: 800, letterSpacing: -2 }}>
-            DevRel Compass
-          </div>
-        </div>
+        {/* Logo lockup: public/logo-text.svg */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logoLockup.src} width={520} height={Math.round((520 * logoLockup.height) / logoLockup.width)} alt="" />
 
         <div
           style={{
