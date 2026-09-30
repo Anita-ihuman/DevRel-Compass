@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
+import SubstackDialog from '@/components/newsletter/SubstackDialog'
 
 const NAV_LINKS = [
   { href: '/',           label: 'Skills Analyzer' },
@@ -12,7 +13,6 @@ const NAV_LINKS = [
   { href: '/library',    label: 'DevRel Playbook' },
   { href: '/events',     label: 'Events'          },
   { href: '/blog',       label: 'Blog'            },
-  { href: '/newsletter', label: 'Newsletter'      },
 ]
 
 // Lesson pages live under /roadmap/*, so match sections by prefix (except home).
@@ -58,6 +58,7 @@ function AccountControls({ onNavigate }: { onNavigate?: () => void }) {
 export default function Nav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [subscribeOpen, setSubscribeOpen] = useState(false)
 
   return (
     <nav className="nav">
@@ -77,6 +78,10 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
+          {/* Opens the Substack sign-up form instead of navigating away */}
+          <button type="button" className="nav-link nav-link--button" aria-haspopup="dialog" onClick={() => setSubscribeOpen(true)}>
+            Newsletter
+          </button>
           <AccountControls />
         </div>
 
@@ -105,11 +110,24 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
+          <button
+            type="button"
+            className="nav-mobile-link nav-link--button"
+            aria-haspopup="dialog"
+            onClick={() => {
+              setOpen(false)
+              setSubscribeOpen(true)
+            }}
+          >
+            Newsletter
+          </button>
           <div className="nav-mobile-account">
             <AccountControls onNavigate={() => setOpen(false)} />
           </div>
         </div>
       )}
+
+      <SubstackDialog open={subscribeOpen} onClose={() => setSubscribeOpen(false)} />
     </nav>
   )
 }
