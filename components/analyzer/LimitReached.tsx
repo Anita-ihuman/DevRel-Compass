@@ -3,8 +3,8 @@ import UpgradeButton from '@/components/billing/UpgradeButton'
 import { PLAN } from '@/lib/plan'
 
 // Shown when an account has no analyses left. Two different situations land
-// here, and they need opposite things: a free user needs to hear about the paid
-// plan, a subscriber who has used their month needs to know when it resets.
+// here, and they need opposite things: a free user needs a way to pay, a
+// subscriber who has used their month needs to know when it resets.
 type Props = {
   paid?: boolean
   limit?: number
@@ -37,18 +37,18 @@ export default function LimitReached({ paid = false, limit, periodEnd }: Props) 
     <div className="credits-page">
       <div className="credits-header">
         <div className="credits-icon">✦</div>
-        <h2 className="credits-title">You&apos;ve used your free analyses</h2>
+        <h2 className="credits-title">You&apos;ve used your 2 free analyses</h2>
         <p className="credits-sub">
-          {PLAN.name} is coming soon — {PLAN.quota} analyses a {PLAN.interval}, plus
-          a saved history of every analysis you can revisit anytime. The roadmap,
-          lessons, events, and all written content stay free.
+          Subscribe to {PLAN.name} for {PLAN.price} a {PLAN.interval}: {PLAN.quota} analyses
+          a month, plus a saved history of every analysis — including the ones you&apos;ve
+          already run. The roadmap, playbook, events, and blog stay free.
         </p>
       </div>
 
-      <UpgradeButton className="retry-btn" />
+      <UpgradeButton className="retry-btn" label={`Upgrade for ${PLAN.price}/${PLAN.interval}`} />
 
       <p className="credits-note">
-        In the meantime, <Link href="/roadmap">work through the career roadmap</Link>.
+        <Link href="/pricing">Compare plans</Link> · Payments are handled securely by Bachs.
       </p>
     </div>
   )

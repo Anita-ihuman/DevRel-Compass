@@ -7,10 +7,9 @@ const MAX_BYTES = 5 * 1024 * 1024
 
 interface Props {
   onAnalyze: (file: File, jobDescription: string) => void
-  usesLeft: number
 }
 
-export default function UploadScreen({ onAnalyze, usesLeft }: Props) {
+export default function UploadScreen({ onAnalyze }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [jd, setJd] = useState('')
   const [dragOver, setDragOver] = useState(false)
@@ -54,10 +53,6 @@ export default function UploadScreen({ onAnalyze, usesLeft }: Props) {
           dimensions — benchmarked against global standards from CNCF, Google, AWS,
           Stripe, Twilio, and HashiCorp.
         </p>
-        <div className="uses-badge">
-          <span className="uses-dot" />
-          {usesLeft === 1 ? '1 free analysis remaining' : `${usesLeft} free analyses remaining`}
-        </div>
       </div>
 
       <div className="upload-form">

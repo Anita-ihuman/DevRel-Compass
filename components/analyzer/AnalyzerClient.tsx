@@ -132,5 +132,5 @@ export default function AnalyzerClient() {
     return <ResultsScreen data={results} hasJD={hasJD} onReset={reset} />
   }
 
-  return <UploadScreen onAnalyze={handleAnalyze} usesLeft={remaining} />
+  return <UploadScreen onAnalyze={handleAnalyze} />
 }

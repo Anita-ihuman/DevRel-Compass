@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/auth'
 import { getUserAnalyses, getEntitlement } from '@/lib/usage'
+import { claimCarryover } from '@/lib/carryover'
+import SignOutButton from '@/components/auth/SignOutButton'
 import UpgradeButton from '@/components/billing/UpgradeButton'
 import { PLAN } from '@/lib/plan'
 
@@ -15,10 +17,26 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-export default async function ProfilePage() {
+// Feedback from the billing-portal round trip.
+const BILLING_BANNERS: Record<string, string> = {
+  none: "There's no subscription to manage on this account yet.",
+  error: "We couldn't open the billing portal just now. Please try again in a moment.",
+}
+
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ billing?: string; upgraded?: string }>
+}) {
   const session = await auth()
   if (!session?.user) redirect('/signin')
   if (!session.user.username) redirect('/onboarding')
+
+  const params = await searchParams
+  const billingNotice = params.billing ? BILLING_BANNERS[params.billing] : undefined
+
+  // Sign-in can land here directly, so claim any analysis run before signing in.
+  await claimCarryover(session.user.id)
 
   // The entitlement, not the session's cached plan, decides what's unlocked —
   // it accounts for a subscription that has lapsed since the session was issued.
@@ -36,27 +54,62 @@ export default async function ProfilePage() {
           <h1 className="profile-name">@{session.user.username}</h1>
           {session.user.email && <p className="profile-email">{session.user.email}</p>}
         </div>
+        <SignOutButton />
       </header>
+
+      {/* ?upgraded=1 is where Bachs sends the customer after paying. The webhook,
+          not this redirect, unlocks the plan — and it can land a few seconds
+          after the customer does, so say so rather than show a free account. */}
+      {params.upgraded && (
+        <div className="nl-banner nl-banner--ok" role="status">
+          {paid
+            ? `You're on ${PLAN.name}. Your saved history is unlocked and your monthly allowance is available below.`
+            : `Thanks for subscribing! We're confirming your payment — refresh in a few seconds to see ${PLAN.name} on your account.`}
+        </div>
+      )}
+      {billingNotice && (
+        <div className="nl-banner nl-banner--warn" role="status">{billingNotice}</div>
+      )}
 
       <div className="profile-plan">
         <div>
           <p className="profile-plan-name">
             {paid ? PLAN.name : 'Free'} plan
           </p>
-          <p className="profile-quota">
-            {remaining} {paid ? '' : 'free '}
-            {remaining === 1 ? 'analysis' : 'analyses'} remaining
-            {paid && entitlement.periodEnd
-              ? ` · resets ${formatDate(entitlement.periodEnd)}`
-              : ''}
-          </p>
+          {/* Only subscribers see a count — they're paying for a monthly quota.
+              Free users just meet the upgrade prompt when they run out. */}
+          {paid ? (
+            <p className="profile-quota">
+              {remaining} {remaining === 1 ? 'analysis' : 'analyses'} remaining
+              {entitlement.periodEnd ? ` · resets ${formatDate(entitlement.periodEnd)}` : ''}
+            </p>
+          ) : (
+            <p className="profile-quota">
+              <Link href="/pricing">Compare plans</Link>
+            </p>
+          )}
           {paid && entitlement.status === 'cancelled' && entitlement.periodEnd && (
             <p className="profile-plan-note">
               Your subscription is cancelled and runs until {formatDate(entitlement.periodEnd)}.
             </p>
           )}
+          {paid && entitlement.status === 'past_due' && (
+            <p className="profile-plan-note">
+              Your last payment failed. Update your card to keep your plan active.
+            </p>
+          )}
         </div>
-        {!paid && <UpgradeButton />}
+        {paid ? (
+          // Only a real Bachs customer has billing to manage. A comped account is
+          // paid but unknown to Bachs, so there is no portal to send it to.
+          entitlement.customerId && (
+            <a className="profile-plan-link" href="/api/billing/portal">
+              Manage or cancel subscription →
+            </a>
+          )
+        ) : (
+          <UpgradeButton label={`Upgrade — ${PLAN.price}/${PLAN.interval}`} />
+        )}
       </div>
 
       <h2 className="profile-section">Your analyses</h2>
@@ -66,9 +119,9 @@ export default async function ProfilePage() {
           <div className="profile-lock-icon">🔒</div>
           <h3 className="profile-lock-title">Saved history is a paid feature</h3>
           <p className="profile-lock-sub">
-            {PLAN.name} is coming soon — {PLAN.quota} analyses a {PLAN.interval}, plus a
-            saved history of every analysis you can revisit anytime. Your past analyses
-            are already saved; they&apos;ll appear here once you&apos;re on {PLAN.name}.
+            {PLAN.name} is {PLAN.price} a {PLAN.interval} — {PLAN.quota} analyses,
+            plus a saved history of every analysis you can revisit anytime. Your past
+            analyses are already saved; they&apos;ll appear here the moment you upgrade.
           </p>
         </div>
       ) : analyses.length === 0 ? (

@@ -4,22 +4,24 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import SubstackDialog from '@/components/newsletter/SubstackDialog'
 
 const NAV_LINKS = [
   { href: '/',           label: 'Skills Analyzer' },
   { href: '/roadmap',    label: 'Career Roadmap'  },
-  { href: '/library',    label: 'DevRel Playbook' },
+  { href: '/playbook',   label: 'DevRel Playbook' },
   { href: '/events',     label: 'Events'          },
   { href: '/blog',       label: 'Blog'            },
 ]
 
-// Lesson pages live under /roadmap/*, so match sections by prefix (except home).
+// Lesson pages live under /playbook/*, so match sections by prefix (except home).
 function isActive(pathname: string, href: string): boolean {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`)
 }
 
+// The nav only ever links to the profile. Signing in and out happen there (a
+// signed-out visitor is sent on to /signin), next to history and billing.
 function AccountControls({ onNavigate }: { onNavigate?: () => void }) {
   const { data: session, status } = useSession()
   if (status === 'loading') return null
@@ -27,7 +29,7 @@ function AccountControls({ onNavigate }: { onNavigate?: () => void }) {
   if (!session?.user) {
     return (
       <Link href="/signin" className="nav-signin" onClick={onNavigate}>
-        Sign in
+        Profile
       </Link>
     )
   }
@@ -48,9 +50,6 @@ function AccountControls({ onNavigate }: { onNavigate?: () => void }) {
           Finish setup
         </Link>
       )}
-      <button className="nav-signout" onClick={() => signOut({ redirectTo: '/' })}>
-        Sign out
-      </button>
     </div>
   )
 }

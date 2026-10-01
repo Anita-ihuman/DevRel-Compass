@@ -12,7 +12,7 @@ export function topicSlug(title: string): string {
 }
 
 export function moduleHref(phaseId: string, groupId: string): string {
-  return `/roadmap/${phaseId}/${groupId}`
+  return `/playbook/${phaseId}/${groupId}`
 }
 
 export function topicHref(phaseId: string, groupId: string, topicTitle: string): string {

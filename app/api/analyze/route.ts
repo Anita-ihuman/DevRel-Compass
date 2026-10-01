@@ -12,7 +12,9 @@ import {
   getAnonUses,
   incrementAnonUses,
   saveAnalysis,
+  savePendingAnalysis,
 } from '@/lib/usage'
+import { claimCarryover, clearCarryoverCookie, setCarryoverCookie } from '@/lib/carryover'
 import { logAnalysisEvent } from '@/lib/metrics'
 import { tokenUsageFrom, type TokenUsage } from '@/lib/pricing'
 import type { AnalysisResult } from '@/types'
@@ -101,8 +103,15 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   const userId = session?.user?.id ?? null
   const ip = getClientIp(req)
+  // Set when a signed-in request carried a pending-analysis cookie, so the
+  // response can clear it once claimed.
+  let claimedCarryover = false
 
   if (userId) {
+    // An analysis run before signing in counts toward this account's free ones,
+    // so claim it before deciding whether there are any left.
+    claimedCarryover = await claimCarryover(userId)
+
     // Signed in: the account's free allowance, or the subscription's monthly
     // quota once they're paying. One helper decides which.
     const entitlement = await getEntitlement(userId)
@@ -208,19 +217,25 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Record usage and, for signed-in users, save to history. Best-effort — a
+  // Record usage and save to history — an anonymous result is held until the
+  // visitor signs in, then carried into their account. Best-effort — a
   // bookkeeping hiccup shouldn't fail an analysis the user already spent tokens on.
+  let pendingToken: string | null = null
   try {
     if (userId) {
       await incrementAccountUsage(userId)
       await saveAnalysis(userId, result, Boolean(jobDescription))
     } else {
       await incrementAnonUses(ip)
+      pendingToken = await savePendingAnalysis(result, Boolean(jobDescription))
     }
     await logAnalysisEvent(userId, usage)
   } catch (e) {
     console.error('Analyze: usage/history bookkeeping failed:', e instanceof Error ? e.message : e)
   }
 
-  return NextResponse.json(result)
+  const res = NextResponse.json(result)
+  if (pendingToken) setCarryoverCookie(res, pendingToken)
+  else if (claimedCarryover) clearCarryoverCookie(res)
+  return res
 }

@@ -9,7 +9,7 @@ import { allModuleRefs, moduleHref } from '@/lib/lessons'
 // posts, newsletter issues) so search engines can discover and crawl the whole
 // site. Draft issues are excluded: getAllIssues already filters them out.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ['', '/roadmap', '/library', '/events', '/blog', '/newsletter'].map((path) => ({
+  const staticRoutes = ['', '/roadmap', '/playbook', '/events', '/blog', '/newsletter', '/pricing'].map((path) => ({
     url: `${siteUrl}${path}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
@@ -31,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }))
 
   const lessonRoutes = [
-    ...ROADMAP_PHASES.map((p) => `/roadmap/${p.id}`),
+    ...ROADMAP_PHASES.map((p) => `/playbook/${p.id}`),
     ...allModuleRefs().map(({ phase, group }) => moduleHref(phase.id, group.id)),
   ].map((path) => ({
     url: `${siteUrl}${path}`,

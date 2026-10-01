@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 export type PhaseNavItem = { id: string; phase: string; title: string; color: string; modules: { id: string; title: string }[] }
 
-// Side navigation for the DevRel Playbook (/library): lists every phase and highlights the
+// Side navigation for the DevRel Playbook (/playbook): lists every phase and highlights the
 // one currently on screen. The links work without JS; the highlight is the
 // only thing that needs it.
 export default function PhaseNav({ items }: { items: PhaseNavItem[] }) {

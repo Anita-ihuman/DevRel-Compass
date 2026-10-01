@@ -70,6 +70,19 @@ CREATE TABLE IF NOT EXISTS analyses (
 );
 CREATE INDEX IF NOT EXISTS analyses_user_idx ON analyses ("userId", "createdAt" DESC);
 
+-- An anonymous visitor's free analysis, held until they sign in. The browser
+-- keeps the token in an httpOnly cookie; on sign-in the row moves into
+-- analyses and counts as one of the account's free analyses.
+CREATE TABLE IF NOT EXISTS pending_analyses (
+  token TEXT PRIMARY KEY,
+  candidate_name TEXT,
+  overall_score INTEGER,
+  career_level TEXT,
+  has_job_fit BOOLEAN NOT NULL DEFAULT false,
+  result JSONB NOT NULL,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Backfill for installs created before the plan column existed.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'free';
 
@@ -135,8 +148,21 @@ CREATE TABLE IF NOT EXISTS newsletter_sends (
 -- We store only what gating needs — no card data, no billing address.
 -- `current_period_end` is the single field access is judged against, so a
 -- cancelled subscription keeps working until the period runs out.
--- Subscription status: active, on_trial, past_due, cancelled, unpaid, expired.
--- NULL for accounts that never subscribed.
+-- Subscription status: active, trialing, past_due, cancelled, paused, unpaid,
+-- expired. NULL for accounts that never subscribed.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_status TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS current_period_end TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS monthly_quota INTEGER;
+-- Bachs ids, written by /api/webhooks/bachs. The customer id is what the billing
+-- portal needs; the subscription id matches renewal events back to the account.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bachs_customer_id TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bachs_subscription_id TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS users_bachs_subscription_idx
+  ON users (bachs_subscription_id) WHERE bachs_subscription_id IS NOT NULL;
+-- Webhook event ids already applied. Bachs delivers at least once, so a
+-- redelivered event is acknowledged without being applied twice.
+CREATE TABLE IF NOT EXISTS bachs_events (
+  id TEXT PRIMARY KEY,
+  type TEXT,
+  received_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
