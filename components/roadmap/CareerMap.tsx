@@ -312,7 +312,7 @@ export default function CareerMap() {
             <h2 className="cm-panel-title">{phase.title}</h2>
             <p className="cm-panel-desc">{phase.description}</p>
           </div>
-          <Link href={`/roadmap/${phase.id}`} className="cm-panel-cta">Get started here →</Link>
+          <Link href={`/playbook/${phase.id}`} className="cm-panel-cta">Get started here →</Link>
         </div>
         <div className="cm-panel-modules">
           {phase.groups.map((g) => (

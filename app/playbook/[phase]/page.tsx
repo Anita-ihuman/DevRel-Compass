@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: { params: Promise<{ phase: st
   return {
     title,
     description: phase.description,
-    alternates: { canonical: `/roadmap/${phase.id}` },
-    openGraph: { type: 'article', url: `/roadmap/${phase.id}`, title, description: phase.description },
+    alternates: { canonical: `/playbook/${phase.id}` },
+    openGraph: { type: 'article', url: `/playbook/${phase.id}`, title, description: phase.description },
   }
 }
 
@@ -52,7 +52,7 @@ export default async function PhaseLessonPage({ params }: { params: Promise<{ ph
     <div className="ls-page" style={{ '--phase-color': phase.color } as React.CSSProperties}>
       <div className="ls-wrap">
         <nav className="ls-crumbs" aria-label="Breadcrumb">
-          <Link href="/roadmap">Career Roadmap</Link>
+          <Link href="/playbook">DevRel Playbook</Link>
           <span aria-hidden>/</span>
           <span>Phase {phase.phase}</span>
         </nav>
@@ -149,25 +149,25 @@ export default async function PhaseLessonPage({ params }: { params: Promise<{ ph
         {/* ── Phase navigation ── */}
         <nav className="ls-pager" aria-label="Phases">
           {prev ? (
-            <Link href={`/roadmap/${prev.id}`} className="ls-pager-link">
+            <Link href={`/playbook/${prev.id}`} className="ls-pager-link">
               <span className="ls-pager-dir">← Previous phase</span>
               <span className="ls-pager-title">{prev.phase} · {prev.title}</span>
             </Link>
           ) : (
-            <Link href="/roadmap" className="ls-pager-link">
+            <Link href="/playbook" className="ls-pager-link">
               <span className="ls-pager-dir">← Back to</span>
-              <span className="ls-pager-title">Career Roadmap</span>
+              <span className="ls-pager-title">DevRel Playbook</span>
             </Link>
           )}
           {next ? (
-            <Link href={`/roadmap/${next.id}`} className="ls-pager-link ls-pager-link--next">
+            <Link href={`/playbook/${next.id}`} className="ls-pager-link ls-pager-link--next">
               <span className="ls-pager-dir">Next phase →</span>
               <span className="ls-pager-title">{next.phase} · {next.title}</span>
             </Link>
           ) : (
-            <Link href="/library" className="ls-pager-link ls-pager-link--next">
-              <span className="ls-pager-dir">Keep learning →</span>
-              <span className="ls-pager-title">DevRel Playbook</span>
+            <Link href="/roadmap" className="ls-pager-link ls-pager-link--next">
+              <span className="ls-pager-dir">See where you are →</span>
+              <span className="ls-pager-title">Career Roadmap</span>
             </Link>
           )}
         </nav>

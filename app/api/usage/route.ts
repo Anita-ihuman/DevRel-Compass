@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { getClientIp } from '@/lib/ip'
 import { ANON_FREE_LIMIT, getEntitlement, getAnonUses } from '@/lib/usage'
+import { claimCarryover, clearCarryoverCookie } from '@/lib/carryover'
 
 // Tells the analyzer UI what gating state the visitor is in, so it can show the
 // right screen (upload / sign-in prompt / upgrade / quota used up) without
@@ -10,8 +11,11 @@ export async function GET(req: NextRequest) {
   const session = await auth()
 
   if (session?.user?.id) {
+    // The analyzer calls this on load, so it's the first stop after signing in:
+    // claim any analysis run before sign-in so the count below includes it.
+    const claimed = await claimCarryover(session.user.id)
     const entitlement = await getEntitlement(session.user.id)
-    return NextResponse.json({
+    const res = NextResponse.json({
       signedIn: true,
       username: session.user.username,
       used: entitlement.used,
@@ -21,6 +25,8 @@ export async function GET(req: NextRequest) {
       paid: entitlement.paid,
       periodEnd: entitlement.periodEnd,
     })
+    if (claimed) clearCarryoverCookie(res)
+    return res
   }
 
   const used = await getAnonUses(getClientIp(req))

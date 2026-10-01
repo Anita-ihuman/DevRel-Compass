@@ -123,7 +123,7 @@ a { text-decoration: none; color: inherit; }
 .footer-inner { max-width: 1100px; margin: 0 auto; padding: 3rem 1.5rem 2rem; }
 .footer-top {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 2rem;
   margin-bottom: 2.5rem;
 }
@@ -409,8 +409,6 @@ a { text-decoration: none; color: inherit; }
 .retry-btn:hover { background: var(--accent2); transform: translateY(-1px); }
 
 /* ─── Uses Remaining Badge ───────────────────────────────────────────────────── */
-.uses-badge { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; padding: .35rem .85rem; background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px; font-size: .78rem; color: var(--text3); }
-.uses-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
 /* ─── Credits / Pricing Screen ───────────────────────────────────────────────── */
 .credits-page { min-height: calc(100vh - 60px); display: flex; flex-direction: column; align-items: center; padding: 3rem 1.5rem 4rem; gap: 2.5rem; }
@@ -808,18 +806,19 @@ a { text-decoration: none; color: inherit; }
 .nav-user { font-family: var(--ff-m); font-size: 13px; color: var(--accent); }
 .nav-signin { font-family: var(--ff-b); font-size: 14px; color: var(--text); }
 .nav-signin:hover { color: var(--accent); }
-.nav-signout {
-  font-family: var(--ff-b); font-size: 13px; cursor: pointer;
-  color: var(--text2); background: transparent;
-  border: 1px solid var(--border2); border-radius: 7px; padding: 4px 10px;
-  transition: color .15s ease, border-color .15s ease;
-}
-.nav-signout:hover { color: var(--text); border-color: var(--accent); }
 .nav-mobile-account { margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--border); }
 
 /* ── Profile / history ───────────────────────────────────────────────────── */
 .profile-wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
 .profile-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+.profile-signout {
+  margin-left: auto; flex-shrink: 0;
+  font-family: var(--ff-b); font-size: 13px; cursor: pointer;
+  color: var(--text2); background: transparent;
+  border: 1px solid var(--border2); border-radius: 7px; padding: 6px 12px;
+  transition: color .15s ease, border-color .15s ease;
+}
+.profile-signout:hover { color: var(--text); border-color: var(--accent); }
 .profile-avatar {
   width: 52px; height: 52px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;

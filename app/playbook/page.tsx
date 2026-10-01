@@ -12,8 +12,8 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: 'DevRel Playbook — How do I get into DevRel?',
   description: DESCRIPTION,
-  alternates: { canonical: '/library' },
-  openGraph: { type: 'website', url: '/library', title: 'DevRel Playbook — How do I get into DevRel?', description: DESCRIPTION },
+  alternates: { canonical: '/playbook' },
+  openGraph: { type: 'website', url: '/playbook', title: 'DevRel Playbook — How do I get into DevRel?', description: DESCRIPTION },
 }
 
 // Every roadmap phase with its lesson, in order. The build already guarantees
@@ -135,7 +135,7 @@ export default function DevRelLibraryPage() {
                   })}
                 </div>
 
-                <Link href={`/roadmap/${phase.id}`} className="lib-phase-link">
+                <Link href={`/playbook/${phase.id}`} className="lib-phase-link">
                   Open the Phase {phase.phase} overview →
                 </Link>
               </section>

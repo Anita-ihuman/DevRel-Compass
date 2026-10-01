@@ -64,9 +64,9 @@ export default async function SkillModulePage({ params }: { params: Params }) {
     <div className="ls-page" style={{ '--phase-color': phase.color } as React.CSSProperties}>
       <div className="ls-wrap ls-wrap--wide">
         <nav className="ls-crumbs" aria-label="Breadcrumb">
-          <Link href="/roadmap">Career Roadmap</Link>
+          <Link href="/playbook">DevRel Playbook</Link>
           <span aria-hidden>/</span>
-          <Link href={`/roadmap/${phase.id}`}>Phase {phase.phase}: {phase.title}</Link>
+          <Link href={`/playbook/${phase.id}`}>Phase {phase.phase}: {phase.title}</Link>
           <span aria-hidden>/</span>
           <span>{group.title}</span>
         </nav>
@@ -188,14 +188,14 @@ export default async function SkillModulePage({ params }: { params: Params }) {
                   <span className="ls-pager-title">{prev.group.title}</span>
                 </Link>
               ) : (
-                <Link href={`/roadmap/${phase.id}`} className="ls-pager-link">
+                <Link href={`/playbook/${phase.id}`} className="ls-pager-link">
                   <span className="ls-pager-dir">← Back to</span>
                   <span className="ls-pager-title">Phase {phase.phase} overview</span>
                 </Link>
               )}
               {next ? (
                 <Link
-                  href={next.phase.id === phase.id ? moduleHref(next.phase.id, next.group.id) : `/roadmap/${next.phase.id}`}
+                  href={next.phase.id === phase.id ? moduleHref(next.phase.id, next.group.id) : `/playbook/${next.phase.id}`}
                   className="ls-pager-link ls-pager-link--next"
                 >
                   <span className="ls-pager-dir">
@@ -206,8 +206,8 @@ export default async function SkillModulePage({ params }: { params: Params }) {
                   </span>
                 </Link>
               ) : (
-                <Link href="/library" className="ls-pager-link ls-pager-link--next">
-                  <span className="ls-pager-dir">You finished the roadmap →</span>
+                <Link href="/playbook" className="ls-pager-link ls-pager-link--next">
+                  <span className="ls-pager-dir">You finished the playbook →</span>
                   <span className="ls-pager-title">Back to the DevRel Playbook</span>
                 </Link>
               )}

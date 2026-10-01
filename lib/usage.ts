@@ -1,11 +1,12 @@
-import { createHash } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
 import { pool } from '@/lib/db'
 import { getRedis } from '@/lib/redis'
 import { PLAN } from '@/lib/plan'
 import type { AnalysisResult } from '@/types'
 
-// Free-analysis allowances (M2): one anonymous, then a couple more per account.
-// Past those, an account needs the paid plan.
+// Free-analysis allowances: two per person in total. The first can be run
+// without an account; signing in carries it over (see claimPendingAnalysis), so
+// it counts toward the account's two. Past those, an account needs the paid plan.
 export const ANON_FREE_LIMIT = 1
 export const ACCOUNT_FREE_LIMIT = 2
 
@@ -284,6 +285,54 @@ export async function getAnalysisById(
   // jsonb usually parses to an object, but coerce defensively.
   const result = typeof row.result === 'string' ? JSON.parse(row.result) : row.result
   return { result, has_job_fit: row.has_job_fit, createdAt: row.createdAt }
+}
+
+// ── Carry-over: an anonymous analysis, claimed on sign-in ───────────────────
+// Holds the result and returns the token the browser keeps in a cookie.
+export async function savePendingAnalysis(
+  result: AnalysisResult,
+  hasJobFit: boolean,
+): Promise<string> {
+  const token = randomBytes(24).toString('hex')
+  await pool.query(
+    `INSERT INTO pending_analyses
+       (token, candidate_name, overall_score, career_level, has_job_fit, result)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [
+      token,
+      result.candidateName ?? null,
+      result.overallScore ?? null,
+      result.careerLevel ?? null,
+      hasJobFit,
+      JSON.stringify(result),
+    ],
+  )
+  return token
+}
+
+// Moves a pending analysis into the account's history and counts it as one of
+// the account's free analyses. One statement, so it's atomic: the DELETE makes a
+// token claimable exactly once even if two requests race. Returns true if
+// something was claimed.
+export async function claimPendingAnalysis(userId: string, token: string): Promise<boolean> {
+  const { rowCount } = await pool.query(
+    `WITH moved AS (
+       DELETE FROM pending_analyses WHERE token = $2
+       RETURNING candidate_name, overall_score, career_level, has_job_fit, result, "createdAt"
+     ), saved AS (
+       INSERT INTO analyses
+         ("userId", candidate_name, overall_score, career_level, has_job_fit, result, "createdAt")
+       SELECT $1, candidate_name, overall_score, career_level, has_job_fit, result, "createdAt"
+         FROM moved
+       RETURNING 1
+     )
+     INSERT INTO usage ("userId", analyses_used)
+     SELECT $1, count(*) FROM saved HAVING count(*) > 0
+     ON CONFLICT ("userId") DO UPDATE SET analyses_used = usage.analyses_used + EXCLUDED.analyses_used
+     RETURNING 1`,
+    [userId, token],
+  )
+  return Boolean(rowCount)
 }
 
 // ── Anonymous usage (by hashed IP, in Redis) ────────────────────────────────

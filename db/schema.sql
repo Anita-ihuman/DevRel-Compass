@@ -70,6 +70,19 @@ CREATE TABLE IF NOT EXISTS analyses (
 );
 CREATE INDEX IF NOT EXISTS analyses_user_idx ON analyses ("userId", "createdAt" DESC);
 
+-- An anonymous visitor's free analysis, held until they sign in. The browser
+-- keeps the token in an httpOnly cookie; on sign-in the row moves into
+-- analyses and counts as one of the account's free analyses.
+CREATE TABLE IF NOT EXISTS pending_analyses (
+  token TEXT PRIMARY KEY,
+  candidate_name TEXT,
+  overall_score INTEGER,
+  career_level TEXT,
+  has_job_fit BOOLEAN NOT NULL DEFAULT false,
+  result JSONB NOT NULL,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Backfill for installs created before the plan column existed.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'free';
 

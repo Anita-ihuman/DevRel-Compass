@@ -37,19 +37,18 @@ export default function LimitReached({ paid = false, limit, periodEnd }: Props) 
     <div className="credits-page">
       <div className="credits-header">
         <div className="credits-icon">✦</div>
-        <h2 className="credits-title">You&apos;ve used your free analyses</h2>
+        <h2 className="credits-title">You&apos;ve used your 2 free analyses</h2>
         <p className="credits-sub">
-          {PLAN.name} is {PLAN.price} a {PLAN.interval} — {PLAN.quota} analyses, plus
-          a saved history of every analysis you can revisit anytime. The roadmap,
-          lessons, events, and all written content stay free.
+          Subscribe to {PLAN.name} for {PLAN.price} a {PLAN.interval}: {PLAN.quota} analyses
+          a month, plus a saved history of every analysis — including the ones you&apos;ve
+          already run. The roadmap, playbook, events, and blog stay free.
         </p>
       </div>
 
       <UpgradeButton className="retry-btn" label={`Upgrade for ${PLAN.price}/${PLAN.interval}`} />
 
       <p className="credits-note">
-        Payments are handled securely by Bachs. Not ready?{' '}
-        <Link href="/roadmap">Work through the career roadmap</Link>.
+        <Link href="/pricing">Compare plans</Link> · Payments are handled securely by Bachs.
       </p>
     </div>
   )

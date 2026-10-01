@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/auth'
 import { getUserAnalyses, getEntitlement } from '@/lib/usage'
+import { claimCarryover } from '@/lib/carryover'
+import SignOutButton from '@/components/auth/SignOutButton'
 import UpgradeButton from '@/components/billing/UpgradeButton'
 import { PLAN } from '@/lib/plan'
 
@@ -33,6 +35,9 @@ export default async function ProfilePage({
   const params = await searchParams
   const billingNotice = params.billing ? BILLING_BANNERS[params.billing] : undefined
 
+  // Sign-in can land here directly, so claim any analysis run before signing in.
+  await claimCarryover(session.user.id)
+
   // The entitlement, not the session's cached plan, decides what's unlocked —
   // it accounts for a subscription that has lapsed since the session was issued.
   const entitlement = await getEntitlement(session.user.id)
@@ -49,6 +54,7 @@ export default async function ProfilePage({
           <h1 className="profile-name">@{session.user.username}</h1>
           {session.user.email && <p className="profile-email">{session.user.email}</p>}
         </div>
+        <SignOutButton />
       </header>
 
       {/* ?upgraded=1 is where Bachs sends the customer after paying. The webhook,
@@ -70,13 +76,18 @@ export default async function ProfilePage({
           <p className="profile-plan-name">
             {paid ? PLAN.name : 'Free'} plan
           </p>
-          <p className="profile-quota">
-            {remaining} {paid ? '' : 'free '}
-            {remaining === 1 ? 'analysis' : 'analyses'} remaining
-            {paid && entitlement.periodEnd
-              ? ` · resets ${formatDate(entitlement.periodEnd)}`
-              : ''}
-          </p>
+          {/* Only subscribers see a count — they're paying for a monthly quota.
+              Free users just meet the upgrade prompt when they run out. */}
+          {paid ? (
+            <p className="profile-quota">
+              {remaining} {remaining === 1 ? 'analysis' : 'analyses'} remaining
+              {entitlement.periodEnd ? ` · resets ${formatDate(entitlement.periodEnd)}` : ''}
+            </p>
+          ) : (
+            <p className="profile-quota">
+              <Link href="/pricing">Compare plans</Link>
+            </p>
+          )}
           {paid && entitlement.status === 'cancelled' && entitlement.periodEnd && (
             <p className="profile-plan-note">
               Your subscription is cancelled and runs until {formatDate(entitlement.periodEnd)}.
@@ -93,7 +104,7 @@ export default async function ProfilePage({
           // paid but unknown to Bachs, so there is no portal to send it to.
           entitlement.customerId && (
             <a className="profile-plan-link" href="/api/billing/portal">
-              Manage billing →
+              Manage or cancel subscription →
             </a>
           )
         ) : (

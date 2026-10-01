@@ -19,8 +19,15 @@ export default function Footer() {
             <div className="footer-col-title">Features</div>
             <Link href="/"        className="footer-link">Skills Analyzer</Link>
             <Link href="/roadmap" className="footer-link">Career Roadmap</Link>
-            <Link href="/library" className="footer-link">DevRel Playbook</Link>
-            <Link href="/events"  className="footer-link">Events</Link>
+            <Link href="/playbook" className="footer-link">DevRel Playbook</Link>
+          </div>
+
+          <div className="footer-links-col">
+            <div className="footer-col-title">Resources</div>
+            <Link href="/newsletter" className="footer-link">Newsletter</Link>
+            <Link href="/events"     className="footer-link">Events</Link>
+            <Link href="/blog"       className="footer-link">Blog</Link>
+            <Link href="/pricing"    className="footer-link">Pricing</Link>
           </div>
 
           <div className="footer-links-col">
