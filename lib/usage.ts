@@ -15,9 +15,9 @@ export const ACCOUNT_FREE_LIMIT = 2
 // cost and does that multiplication for you).
 export const PAID_MONTHLY_QUOTA = PLAN.quota
 
-// Saved history is a paid perk. Any non-'free' plan unlocks it. There is no
-// payment provider wired up right now, so a paid plan is granted by setting
-// users.plan and users.current_period_end directly.
+// Saved history is a paid perk. Any non-'free' plan unlocks it. Bachs webhooks
+// set the plan; it can also be granted by hand by setting users.plan and
+// users.current_period_end directly (a complimentary account).
 export function isPaidPlan(plan: string | null | undefined): boolean {
   return Boolean(plan) && plan !== 'free'
 }
@@ -49,6 +49,12 @@ export type Entitlement = {
   remaining: number
   /** When the current paid period ends (also when a cancellation takes effect). */
   periodEnd: string | null
+  /**
+   * Bachs customer id, when there is one. Present means billing is manageable —
+   * link to /api/billing/portal, which mints a fresh portal URL. A comped
+   * account has a paid plan but no Bachs customer, so nothing to manage.
+   */
+  customerId: string | null
 }
 
 type UserBillingRow = {
@@ -56,6 +62,7 @@ type UserBillingRow = {
   plan_status: string | null
   current_period_end: Date | null
   monthly_quota: number | null
+  bachs_customer_id: string | null
   analyses_used: number | null
   period_start: Date | null
 }
@@ -65,13 +72,15 @@ type UserBillingRow = {
 // A failed payment is the same: access holds until the period ends.
 function isWithinPaidPeriod(row: UserBillingRow): boolean {
   if (!isPaidPlan(row.plan)) return false
-  if (row.plan_status === 'expired' || row.plan_status === 'unpaid') return false
+  if (row.plan_status === 'expired' || row.plan_status === 'unpaid' || row.plan_status === 'paused') {
+    return false
+  }
   return row.current_period_end != null && row.current_period_end.getTime() > Date.now()
 }
 
 export async function getEntitlement(userId: string): Promise<Entitlement> {
   const { rows } = await pool.query(
-    `SELECT u.plan, u.plan_status, u.current_period_end, u.monthly_quota,
+    `SELECT u.plan, u.plan_status, u.current_period_end, u.monthly_quota, u.bachs_customer_id,
             g.analyses_used, g.period_start
        FROM users u LEFT JOIN usage g ON g."userId" = u.id
       WHERE u.id = $1`,
@@ -83,6 +92,7 @@ export async function getEntitlement(userId: string): Promise<Entitlement> {
     plan_status: null,
     current_period_end: null,
     monthly_quota: null,
+    bachs_customer_id: null,
     analyses_used: 0,
     period_start: null,
   }
@@ -113,7 +123,111 @@ export async function getEntitlement(userId: string): Promise<Entitlement> {
     limit,
     remaining: Math.max(0, limit - used),
     periodEnd: row.current_period_end?.toISOString() ?? null,
+    customerId: row.bachs_customer_id ?? null,
   }
+}
+
+// ── Subscription state (written by the Bachs webhook) ───────────────────────
+// Null fields leave the stored value alone, so an event that doesn't carry,
+// say, the period end can't wipe the one we already have.
+export type SubscriptionUpdate = {
+  plan: string
+  status: string | null
+  subscriptionId: string | null
+  customerId: string | null
+  currentPeriodEnd: string | null
+  monthlyQuota: number | null
+}
+
+export async function applySubscription(
+  userId: string,
+  sub: SubscriptionUpdate,
+): Promise<void> {
+  await pool.query(
+    `UPDATE users
+        SET plan = $2,
+            plan_status = COALESCE($3, plan_status),
+            bachs_subscription_id = COALESCE($4, bachs_subscription_id),
+            bachs_customer_id = COALESCE($5, bachs_customer_id),
+            current_period_end = COALESCE($6::timestamptz, current_period_end),
+            monthly_quota = COALESCE($7, monthly_quota)
+      WHERE id = $1`,
+    [
+      userId,
+      sub.plan,
+      sub.status,
+      sub.subscriptionId,
+      sub.customerId,
+      sub.currentPeriodEnd,
+      sub.monthlyQuota,
+    ],
+  )
+}
+
+// checkout.completed doesn't carry the period end; the subscription events that
+// do can arrive before or after it. Give a brand-new subscriber a provisional
+// month so they're unlocked straight away, without overwriting a real period
+// end a subscription event already wrote.
+export async function ensurePeriodEnd(userId: string): Promise<void> {
+  await pool.query(
+    `UPDATE users SET current_period_end = now() + interval '1 month'
+      WHERE id = $1 AND (current_period_end IS NULL OR current_period_end < now())`,
+    [userId],
+  )
+}
+
+// Webhook idempotency. Bachs delivers at least once, so record each event id
+// once it has been applied and skip any redelivery.
+export async function isWebhookEventProcessed(eventId: string): Promise<boolean> {
+  const { rowCount } = await pool.query('SELECT 1 FROM bachs_events WHERE id = $1', [eventId])
+  return Boolean(rowCount)
+}
+
+export async function markWebhookEventProcessed(eventId: string, type: string): Promise<void> {
+  await pool.query(
+    'INSERT INTO bachs_events (id, type) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING',
+    [eventId, type],
+  )
+}
+
+// Starts a fresh quota month. Called when a billing period is paid for, so the
+// customer gets their full allowance from the moment the payment lands.
+export async function startNewUsagePeriod(userId: string): Promise<void> {
+  await pool.query(
+    `INSERT INTO usage ("userId", analyses_used, period_start) VALUES ($1, 0, now())
+     ON CONFLICT ("userId") DO UPDATE SET analyses_used = 0, period_start = now()`,
+    [userId],
+  )
+}
+
+// Resolve the account a webhook belongs to, most reliable identifier first.
+// The checkout reference is the user id we set, so it's authoritative. The
+// subscription id covers renewal and invoice events, which don't echo the
+// reference. Email is the last resort — it also catches a subscription created
+// by hand in the Bachs dashboard, outside our checkout flow.
+export async function findUserForWebhook(opts: {
+  reference?: string | null
+  subscriptionId?: string | null
+  email?: string | null
+}): Promise<string | null> {
+  // The id column is an integer; a non-numeric reference would error the query.
+  if (opts.reference && /^\d+$/.test(opts.reference)) {
+    const { rows } = await pool.query('SELECT id FROM users WHERE id = $1', [opts.reference])
+    if (rows[0]) return String(rows[0].id)
+  }
+  if (opts.subscriptionId) {
+    const { rows } = await pool.query('SELECT id FROM users WHERE bachs_subscription_id = $1', [
+      opts.subscriptionId,
+    ])
+    if (rows[0]) return String(rows[0].id)
+  }
+  if (opts.email) {
+    const { rows } = await pool.query('SELECT id FROM users WHERE lower(email) = lower($1)', [
+      opts.email,
+    ])
+    if (rows[0]) return String(rows[0].id)
+  }
+  return null
 }
 
 // ── Saved analysis history ──────────────────────────────────────────────────

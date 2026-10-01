@@ -4,8 +4,9 @@
 // (rather than in env vars) means the marketing copy, the quota the server
 // enforces, and the admin cost projection can never drift apart.
 //
-// No payment provider is wired up yet. When one is added, its product price
-// has to match `price` here.
+// The checkout price lives on the Bachs product (BACHS_PRODUCT_ID). Changing the
+// price means changing it in BOTH places — the Bachs product is what actually
+// charges the customer.
 export const PLAN = {
   /** Label stored in users.plan. Anything other than 'free' counts as paid. */
   id: 'pro',
